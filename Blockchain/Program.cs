@@ -16,6 +16,6 @@ public class Program
         Console.WriteLine("---HASH Avalanche----");
         
         var avalanche = InputDistributorService.Compute(input);
-        Console.WriteLine(string.Join(" ", avalanche));
+        Console.WriteLine(string.Concat(avalanche.Select(h => h.ToString("X8"))));
     }
 }

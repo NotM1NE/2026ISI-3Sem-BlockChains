@@ -13,6 +13,7 @@ public static class InputDistributorService
         for (int i = 0; i < input.Length; i++)
         {
             uint mixed = unchecked(h[start] + input[i]);
+            mixed = unchecked(mixed * 7u);
             h[start] = BitOperations.RotateLeft(mixed, 5);
 
             int previous = start;
@@ -24,7 +25,7 @@ public static class InputDistributorService
                 if (current == h.Length)
                     current = 0;
 
-                uint mixedWithPrevious = unchecked(h[current] + h[previous]);
+                uint mixedWithPrevious = unchecked(h[current] + h[previous] * 3u);
 
                 h[current] = BitOperations.RotateLeft(mixedWithPrevious, 11);
                 previous = current;
