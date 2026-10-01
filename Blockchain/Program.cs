@@ -5,17 +5,42 @@ namespace Blockchain;
 
 public class Program
 {
-    static void Main(string[] args)
+    static int Main(string[] args)
     {
-        Console.Write("Iveskite teksta: ");
-        string text = Console.ReadLine() ?? "";
+        byte[] input;
 
-        var input = HashInputHelper.GetBytes(text);
-        Console.WriteLine(Convert.ToHexString(input));
+        if (args.Length > 1)
+        {
+            Console.Error.WriteLine("Naudojimas: dotnet run -- [failo kelias]");
+            return 1;
+        }
 
-        Console.WriteLine("---HASH Avalanche----");
-        
-        var avalanche = InputDistributorService.Compute(input);
-        Console.WriteLine(string.Concat(avalanche.Select(h => h.ToString("X8"))));
+        if (args.Length == 1)
+        {
+            Console.WriteLine("Režimas: failas");
+
+            try
+            {
+                input = File.ReadAllBytes(args[0]);
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"Nepavyko perskaityti failo: {ex.Message}");
+                return 1;
+            }
+        }
+        else
+        {
+            Console.WriteLine("Režimas: tekstas");
+            Console.Write("Įveskite tekstą: ");
+            string text = Console.ReadLine() ?? "";
+
+            input = HashInputHelper.GetBytes(text);
+        }
+
+        var hash = InputDistributorService.Compute(input);
+        Console.WriteLine(string.Concat(hash.Select(h => h.ToString("X8"))));
+
+        return 0;
     }
 }
