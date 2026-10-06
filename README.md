@@ -178,11 +178,9 @@ Atliktos patikros parodė nuoseklų formatą ir determinizmą, maždaug tiesinę
 
 ### DI pagalba
 
-Naudota ChatGPT pagalba testų aiškinimui, testavimo kodo rengimui / papildymui, rezultatų interpretavimui, README ir grafikų parengimui. Papildyti tikslų naudotą modelį ir algoritmo kūrimo pagalbos istoriją pagal faktinį darbą.
+Naudota ChatGPT pagalba testų aiškinimui, testavimo kodo rengimui, rezultatų interpretavimui, README ir grafikų parengimui. Papildyti tikslų naudotą modelį ir algoritmo kūrimo pagalbos istoriją pagal faktinį darbą.
 
-Svarbios užklausos: paaiškinti testus ir trūkstamus reikalavimus; pasiūlyti lavinos pagerinimą; pridėti struktūruotus kolizijų bandymus; parengti kandidatų perrinkimo su druska bandymą; parengti README ir grafikus.
-
-Priimti struktūruotų kolizijų ir kandidatų perrinkimo testų pasiūlymai. Jų vykdymo rezultatai peržiūrėti: 23 struktūruotos įvestys be kolizijų; abu perrinkimai rado `2026`. Pasiūlytas galutinis papildomas algoritmo maišymas neįgyvendintas. Jo pagerėjimas nebuvo išmatuotas; šio pakeitimo rezultatai nenurodomi.
+Svarbios užklausos: paaiškinti testus ir trūkstamus reikalavimus; pridėti struktūruotus kolizijų bandymus; parengti kandidatų perrinkimo su druska bandymą; parengti README.
 
 ## Rezultatų failai
 
