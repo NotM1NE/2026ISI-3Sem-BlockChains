@@ -110,7 +110,6 @@ Naudotas kurso `konstitucija.txt`: 789 eilutės, 76 384 baitai. Imtos pradžios 
 | 512 | 47946 | 512 | 0.167027 | 0.174338 | 0.179413 |
 | 789 | 76384 | 256 | 0.274397 | 0.284502 | 0.292846 |
 
-![Spartos grafikas](graphs/performance.png)
 
 Laikas didėja maždaug tiesiškai didėjant baitų skaičiui. Daugumoje dydžių našumas apie 257–275 MB/s. Pirmas matavimas išsiskiria dideliu vidurkiu ir sklaida; galimos vykdymo optimizavimo ar sistemos apkrovos priežastys, bet šie matavimai neleidžia nustatyti tikslios priežasties.
 
@@ -143,7 +142,6 @@ Bitų skirtumas = 100 × skirtingų bitų skaičius / 256. HEX skirtumas = 100 �
 | 1000 | 17.1875 | 63.6719 | 49.9774 | 39.0625 | 100.0000 | 93.7135 |
 | Visi | 12.8906 | 64.0625 | 48.8992 | 32.8125 | 100.0000 | 91.8503 |
 
-![Lavinos histogramos](graphs/avalanche-histogram.png)
 
 Horizontalioje ašyje – pasikeitusių hash bitų procentas, vertikalioje – porų skaičius. Grafike matavimai sugrupuoti į 5 procentinių punktų intervalus; tikslūs skaičiai lieka CSV. 50 % linija yra statistinis orientyras, o ne kiekvienos poros reikalavimas.
 
