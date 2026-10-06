@@ -9,21 +9,26 @@ public class Program
     static int Main(string[] args)
     {
         if (args.Length == 1 && args[0] == "--test")
-        {
-            CorrectnessExperiments.Run();
-            return 0;
-        }
+            return CorrectnessExperiments.Run();   
+
+        
         if (args.Length == 1 && args[0] == "--avalanche")
-        {
             return AvalancheExperiments.Run();
-        }
-        byte[] input;
+
 
         if (args.Length > 1)
         {
             Console.Error.WriteLine("Naudojimas: dotnet run -- [failo kelias]");
             return 1;
         }
+
+        if (args.Length == 1 && args[0] == "--collisions")
+            return CollisionExperiments.Run();
+
+        if (args.Length == 1 && args[0] == "--performance")
+            return PerformanceExperiments.Run();
+
+        byte[] input;
 
         if (args.Length == 1)
         {
