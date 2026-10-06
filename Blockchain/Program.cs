@@ -9,12 +9,14 @@ public class Program
     static int Main(string[] args)
     {
         if (args.Length == 1 && args[0] == "--test")
-            return CorrectnessExperiments.Run();   
+            return CorrectnessExperiments.Run();
 
-        
+
         if (args.Length == 1 && args[0] == "--avalanche")
             return AvalancheExperiments.Run();
 
+        if (args.Length == 1 && args[0] == "--guessing")
+            return GuessingExperiments.Run();
 
         if (args.Length > 1)
         {
