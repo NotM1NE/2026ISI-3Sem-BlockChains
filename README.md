@@ -6,26 +6,41 @@ v0.1 yra pradinė projekto maišos realizacija. v0.2 yra jos patobulinimas su DI
 
 ## Paleidimas
 
-Reikia .NET 9 vykdymo aplinkos ir suderinamo SDK. Komandos iš repozitorijos šaknies:
+Reikia .NET 9 vykdymo aplinkos ir suderinamo SDK. **Šioje šakoje programa visada vykdo v0.2; versijų pasirinkimo argumento nėra.** v0.1 ir v0.2 lentelės žemiau aprašo anksčiau atliktą ir išsaugotą bendrą palyginimą.
+
+Komandos iš repozitorijos šaknies:
 
 ```powershell
 dotnet build Blockchain -c Release
-dotnet run --project Blockchain -c Release -- --version v0.1
-dotnet run --project Blockchain -c Release -- --version v0.2
-dotnet run --project Blockchain -c Release -- --version v0.2 "Blockchain/test-data/konstitucija.txt"
+dotnet run --project Blockchain -c Release
+dotnet run --project Blockchain -c Release -- "Blockchain/test-data/konstitucija.txt"
 ```
 
-Be versijos argumento numatytoji v0.2. Be failo kelio įvedama viena teksto eilutė; su keliu maiša skaičiuojama iš failo turinio. Neperskaitomas failas praneša klaidą ir grąžina 1.
+Be failo kelio įvedama viena teksto eilutė; su keliu maiša skaičiuojama iš failo turinio. Neperskaitomas failas praneša klaidą ir grąžina 1.
 
-Visus bandymus abiem versijoms pakartoti:
+### Dabartinės v0.2 bandymai
+
+Komandas vykdyti `Blockchain` aplanke, kad būtų naudojami teisingi santykiniai `test-data` ir `results` keliai:
 
 ```powershell
-./Compare-Versions.ps1 -OutputDirectory comparison-naujas
+cd Blockchain
+dotnet run -c Release -- --test
+dotnet run -c Release -- --test
+dotnet run -c Release -- --performance
+dotnet run -c Release -- --collisions
+dotnet run -c Release -- --avalanche
+dotnet run -c Release -- --guessing
 ```
 
-Pasirinkti dar neegzistuojantį rezultatų aplanką. Scenarijus sukuria atskirus versijų aplankus, naudoja tą patį konstitucijos failą bei viešą druską ir kiekvienai versijai vykdo `--test` du kartus, `--avalanche`, `--collisions`, `--performance`, `--guessing`. Dabartinio palyginimo rezultatai saugomi **`comparison-final`**. Senasis `comparison` yra ankstesnis, kitų imčių seansas ir nėra šios analizės pagrindas.
+Jeigu `results/correctness-baseline.csv` liko iš v0.1, prieš pirmą v0.2 patikrą jį išsaugoti kitu pavadinimu, pavyzdžiui, `correctness-baseline-v01.csv`. Pirmas paleidimas be baseline sukuria dabartinio algoritmo etaloną, antras palygina atskiro paleidimo rezultatą. Baseline keitimas pagrįstas tik sąmoningai pakeitus algoritmą, ne slepiant netikėtą nesutapimą. v0.1 ir v0.2 maišos neprivalo sutapti.
 
-Atskiram bandymui pereiti į `Blockchain`, pavyzdžiui, `dotnet run -c Release -- --version v0.1 --avalanche`. Įprastas eksperimento paleidimas perrašo jo failus darbiniame `results`, todėl versijų nelaikyti viename baseline aplanke.
+Paleidimai perrašo atitinkamo eksperimento failus darbiniame `Blockchain/results`. Prieš naują matavimą išsaugoti ankstesnius duomenis, jeigu jie reikalingi palyginimui.
+
+### Išsaugotas versijų palyginimas
+
+Šio README ir Excel abiejų versijų palyginimo šaltinis yra **`comparison-final`**. Jo duomenys gauti prieš pašalinant versijų pasirinkimą; algoritmo skaičiavimas nuo to nepasikeitė. Senasis `comparison` yra ankstesnis kitų imčių seansas, todėl su galutiniais rezultatais nemaišomas.
+
+Senas `Compare-Versions.ps1` scenarijus rėmėsi pašalintu versijų pasirinkimu ir su dabartiniu paleidimu nebesuderinamas. Dabartinėms patikroms naudoti aukščiau pateiktas komandas. Naujam abiejų algoritmų palyginimui reikia atskirai vykdyti jų atitinkamas Git versijas, išlaikant vienodus testus, įvestis ir druską; jų rezultatų nesaugoti viename baseline aplanke.
 
 ## Įvestis ir išvestis
 
@@ -54,7 +69,7 @@ Atnaujinama vietoje: kitas elementas naudoja jau atnaujintą ankstesnį. Sudėti
 
 ## v0.2: ką pakeitė DI pasiūlymas
 
-Pirmiausia vykdoma nepakeista `ComputeV01(input)`. Tada į pirmus du žodžius XOR būdu įtraukiamos apatinės ir viršutinės 64 bitų baitų ilgio dalys. Po to atliekami keturi ciklai po aštuonis būsenos atnaujinimus.
+Pirmiausia vykdoma nepakeista `ComputeV01(input)`. Tai vidinis v0.2 skaičiavimo etapas, naudojantis pradinį maišymą, o ne vartotojui skirtas versijos pasirinkimas; ši funkcija turi likti kode. Tada į pirmus du žodžius XOR būdu įtraukiamos apatinės ir viršutinės 64 bitų baitų ilgio dalys. Po to atliekami keturi ciklai po aštuonis būsenos atnaujinimus.
 
 ```text
 H ← v0.1(input)
