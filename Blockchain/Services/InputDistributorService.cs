@@ -28,7 +28,7 @@ public static class InputDistributorService
                 uint x = unchecked(h[i] + BitOperations.RotateLeft(next, 7)
                     + 0x9E3779B9u + (uint)round);
                 x ^= BitOperations.RotateLeft(opposite, 13);
-                // XOR shifts and odd multipliers mix upper and lower bits.
+                // MurmurHash3 fmix32 mixing block (Austin Appleby, public domain); see README source.
                 x ^= x >> 16;
                 x = unchecked(x * 0x85EBCA6Bu);
                 x ^= x >> 13;

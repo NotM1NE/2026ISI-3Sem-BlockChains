@@ -10,7 +10,7 @@ public class Program
     {
         Console.InputEncoding = System.Text.Encoding.UTF8;
         Console.OutputEncoding = System.Text.Encoding.UTF8;
-        
+
         // Optional prefix: --version v0.1 or --version v0.2.
         if (args.Length > 0 && args[0] == "--version")
         {

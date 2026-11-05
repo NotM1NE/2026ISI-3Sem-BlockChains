@@ -220,3 +220,9 @@ Laikai milisekundėmis, lavinos rodikliai procentais. `all` žymi visus keturis 
 - VU 2026 m. užduotis „Sukurk savo maišos generatorių“ ir kontrolinis sąrašas, vartotojo pateikti PDF.
 - Esamas projekto kodas ir kursui naudotas `konstitucija.txt` (failas išsaugotas repozitorijoje; pradinė nuoroda neišlikusi).
 - Vietoje gauti bandymų rezultatai; DI pagalba aprašyta aukščiau.
+
+### Maišymo operacijų šaltinio patikslinimas
+
+32 bitų XOR–poslinkių–daugybos seka su konstantomis 0x85EBCA6B ir 0xC2B2AE35 paimta iš Austin Appleby MurmurHash3 fmix32 galutinio maišymo (public domain): https://github.com/aappleby/smhasher/blob/master/src/MurmurHash3.cpp . Tai žinomas maišymo blokas, jo originalumo nepriskiriu sau. Šiame darbe jis panaudotas savo aštuonių žodžių būsenos papildomame maišyme; visa MurmurHash3 funkcija nekopijuojama ir neiškviečiama.
+
+Vietinė v0.1 žyma sukurta 2026-11-05 prie jau buvusio commit dcc12f2; ji neatkuria ankstesnio pateikimo datos ar darbo be DI įrodymo. v0.2 žyma žymi šį DI pagalba parengtą etapą.
