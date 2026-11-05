@@ -18,7 +18,7 @@ public static class InputDistributorService
         // 2. Į pirmas dvi vietas įmaišome įvesties ilgį baitais.
         ulong length = (ulong)input.LongLength;
         h[0] ^= (uint)length;
-        h[1] ^= (uint)(length >> 32);
+        h[1] ^= (uint)BitOperations.RotateRight(length, 32);
 
         // 3. Keturis kartus papildomai sumaišome visas aštuonias vietas.
         for (int round = 0; round < 4; round++)
@@ -37,13 +37,14 @@ public static class InputDistributorService
                 value = unchecked(value + MixingOffset + (uint)round);
                 value ^= BitOperations.RotateLeft(opposite, 13);
 
-                // Papildomas bitų maišymas: poslinkis, XOR ir daugyba.
+                // Sukame į dešinę ir kauke pašaliname į kairę grįžusius bitus.
+                // 65_535 palieka apatinius 16 bitų; 524_287 – apatinius 19 bitų.
                 // Ši seka iš MurmurHash3 fmix32; šaltinis nurodytas README.
-                value ^= value >> 16;
+                value ^= BitOperations.RotateRight(value, 16) & 65_535u;
                 value = unchecked(value * FirstMultiplier);
-                value ^= value >> 13;
+                value ^= BitOperations.RotateRight(value, 13) & 524_287u;
                 value = unchecked(value * SecondMultiplier);
-                value ^= value >> 16;
+                value ^= BitOperations.RotateRight(value, 16) & 65_535u;
 
                 // Išsaugome pakeistą reikšmę toje pačioje vietoje.
                 h[i] = value;

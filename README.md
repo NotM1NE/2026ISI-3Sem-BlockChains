@@ -93,9 +93,9 @@ round nuo 0 iki 3:
         opposite ← H[(i+4) mod 8]
         x ← H[i] + ROTL32(next,7) + MixingOffset + round
         x ← x XOR ROTL32(opposite,13)
-        x ← (x XOR (x >> 16)) × FirstMultiplier
-        x ← (x XOR (x >> 13)) × SecondMultiplier
-        H[i] ← x XOR (x >> 16)
+        x ← (x XOR (ROTR32(x,16) AND 65535)) × FirstMultiplier
+        x ← (x XOR (ROTR32(x,13) AND 524287)) × SecondMultiplier
+        H[i] ← x XOR (ROTR32(x,16) AND 65535)
 grąžinti H
 ```
 
