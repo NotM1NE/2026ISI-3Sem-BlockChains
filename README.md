@@ -178,7 +178,7 @@ Kiekvienoje poroje pakeistas vienas ASCII simbolis kitu. Tai gali pakeisti kelis
 
 `all` reiškia visus devynis ilgius, 225 000 porų. **Privalomų keturių ilgių** 100 000 porų bitų vidurkis: v0.1 **48.8561 %**, v0.2 **49.9913 %**. Jų HEX vidurkiai: **91.7901 %** ir **93.7615 %**. Šios reikšmės perskaičiuotos iš pradinių porų duomenų, todėl gali paskutiniu skaitmeniu skirtis nuo suapvalintų ilgių vidurkių vidurkio.
 
-<img width="1627" height="566" alt="image" src="https://github.com/user-attachments/assets/88ef80ac-ee4b-40d2-876b-ddbbee118e3e" />
+<img width="1839" height="625" alt="image" src="https://github.com/user-attachments/assets/88e51b2e-8cd1-487e-a7d7-bd445ad67761" />
 
 Didžiausias pagerėjimas labai trumpoms įvestims: 1 simbolio vidurkis 24,7459 % → 49,9812 %, 2 simbolių 31,2706 % → 49,9991 %. Bendras minimumas 12,1094 % → 35,5469 %. v0.2 pasklidimas šiame rinkinyje nuoseklesnis, tačiau nėra reikalavimo kiekvienai porai pasiekti 50 %. Orientyrai – apie 50 % bitams ir 93,75 % HEX: nepriklausomi bitai sutampa su tikimybe 1/2, HEX pozicija su 1/16.
 
