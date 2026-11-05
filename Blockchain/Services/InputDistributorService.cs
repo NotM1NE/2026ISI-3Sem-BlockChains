@@ -5,37 +5,53 @@ namespace Blockchain.Services;
 
 public static class InputDistributorService
 {
-    // v0.1 is kept unchanged so both algorithms use exactly the same experiments.
+    // Tie patys maišymo skaičiai kaip anksčiau, tik dešimtainiu užrašu.
+    private const uint MixingOffset = 2_654_435_769u;
+    private const uint FirstMultiplier = 2_246_822_507u;
+    private const uint SecondMultiplier = 3_266_489_909u;
 
     public static uint[] Compute(byte[] input)
     {
+        // 1. Pirmiausia atliekame tavo pradinį maišymą.
         uint[] h = ComputeV01(input);
 
-        // Include all 64 bits of the byte length, including for an empty input.
+        // 2. Į pirmas dvi vietas įmaišome įvesties ilgį baitais.
         ulong length = (ulong)input.LongLength;
         h[0] ^= (uint)length;
         h[1] ^= (uint)(length >> 32);
 
-        // Four complete passes allow even the last input byte to spread further.
+        // 3. Keturis kartus papildomai sumaišome visas aštuonias vietas.
         for (int round = 0; round < 4; round++)
         {
             for (int i = 0; i < h.Length; i++)
             {
-                uint next = h[(i + 1) % h.Length];
-                uint opposite = h[(i + 4) % h.Length];
-                uint x = unchecked(h[i] + BitOperations.RotateLeft(next, 7)
-                    + 0x9E3779B9u + (uint)round);
-                x ^= BitOperations.RotateLeft(opposite, 13);
-                // MurmurHash3 fmix32 mixing block (Austin Appleby, public domain); see README source.
-                x ^= x >> 16;
-                x = unchecked(x * 0x85EBCA6Bu);
-                x ^= x >> 13;
-                x = unchecked(x * 0xC2B2AE35u);
-                h[i] = x ^ (x >> 16);
+                // Paimame kitą ir per keturias vietas nutolusį skaičių.
+                int nextIndex = (i + 1) % h.Length;
+                int oppositeIndex = (i + 4) % h.Length;
+                uint next = h[nextIndex];
+                uint opposite = h[oppositeIndex];
+
+                // Dabartinę reikšmę susiejame su kitomis būsenos vietomis.
+                uint value = h[i];
+                value = unchecked(value + BitOperations.RotateLeft(next, 7));
+                value = unchecked(value + MixingOffset + (uint)round);
+                value ^= BitOperations.RotateLeft(opposite, 13);
+
+                // Papildomas bitų maišymas: poslinkis, XOR ir daugyba.
+                // Ši seka iš MurmurHash3 fmix32; šaltinis nurodytas README.
+                value ^= value >> 16;
+                value = unchecked(value * FirstMultiplier);
+                value ^= value >> 13;
+                value = unchecked(value * SecondMultiplier);
+                value ^= value >> 16;
+
+                // Išsaugome pakeistą reikšmę toje pačioje vietoje.
+                h[i] = value;
             }
         }
         return h;
     }
+    // Pradinis tavo algoritmas. v0.2 naudoja jį kaip pirmą etapą.
     public static uint[] ComputeV01(byte[] input)
     {
         var h = HashInitialState.Create();
@@ -47,7 +63,7 @@ public static class InputDistributorService
 
             // for (int j = 0; j < h.Length; j++)
             //     Console.WriteLine($"H[{j}] = {h[j]}");
-
+            
             uint mixed = unchecked(h[start] + input[i]);
             mixed = unchecked(mixed * 7u);
             h[start] = BitOperations.RotateLeft(mixed, 5);

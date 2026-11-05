@@ -69,6 +69,18 @@ Atnaujinama vietoje: kitas elementas naudoja jau atnaujintą ankstesnį. Sudėti
 
 ## v0.2: ką pakeitė DI pasiūlymas
 
+Trumpai: pirmiausia vykdomas pradinis autoriaus maišymas, tada pridedama įvesties ilgio įtaka ir visa būsena dar keturis kartus permaišoma. Kiekviena vieta susiejama su kita ir per keturias vietas nutolusia vieta. Po papildomo bitų maišymo reikšmė įrašoma atgal. Būsena lieka aštuonių skaičių, išvestis – 64 HEX simboliai.
+
+Kad kodą būtų lengviau skaityti, tos pačios konstantos užrašytos dešimtainiu formatu ir pavadintos:
+
+| Pavadinimas | Reikšmė | Paskirtis |
+|---|---:|---|
+| MixingOffset | 2654435769 | Pridedama maišant būsenos vietas |
+| FirstMultiplier | 2246822507 | Pirmoji papildomo bitų maišymo daugyba |
+| SecondMultiplier | 3266489909 | Antroji papildomo bitų maišymo daugyba |
+
+Pabraukimai skaičiuose tik atskiria skaitmenų grupes; `u` reiškia `uint` skaičių be ženklo. Tai fiksuoti algoritmo parametrai, ne slapti raktai. Pakeistas tik užrašas ir komentarai, ne skaičių reikšmės: visos 24 patikrintos v0.2 maišos liko identiškos ankstesniam palyginimui.
+
 Pirmiausia vykdoma nepakeista `ComputeV01(input)`. Tai vidinis v0.2 skaičiavimo etapas, naudojantis pradinį maišymą, o ne vartotojui skirtas versijos pasirinkimas; ši funkcija turi likti kode. Tada į pirmus du žodžius XOR būdu įtraukiamos apatinės ir viršutinės 64 bitų baitų ilgio dalys. Po to atliekami keturi ciklai po aštuonis būsenos atnaujinimus.
 
 ```text
@@ -79,17 +91,17 @@ round nuo 0 iki 3:
     i nuo 0 iki 7:
         next ← H[(i+1) mod 8]
         opposite ← H[(i+4) mod 8]
-        x ← H[i] + ROTL32(next,7) + 0x9E3779B9 + round
+        x ← H[i] + ROTL32(next,7) + MixingOffset + round
         x ← x XOR ROTL32(opposite,13)
-        x ← (x XOR (x >> 16)) × 0x85EBCA6B
-        x ← (x XOR (x >> 13)) × 0xC2B2AE35
+        x ← (x XOR (x >> 16)) × FirstMultiplier
+        x ← (x XOR (x >> 13)) × SecondMultiplier
         H[i] ← x XOR (x >> 16)
 grąžinti H
 ```
 
 Visi atnaujinimai 32 bitų, vyksta vietoje. Tikslas – paskutinio baito poveikiui suteikti papildomų pasklidimo žingsnių, o ilgį padaryti aiškia galutinio skaičiavimo dalimi. Keturi ciklai yra eksperimentinis pasirinkimas, neįrodyta optimali reikšmė.
 
-XOR–poslinkių–daugybos blokas su `0x85EBCA6B`, `0xC2B2AE35` yra Austin Appleby **MurmurHash3 `fmix32`** (public domain) dalis: [pirminis kodas](https://github.com/aappleby/smhasher/blob/master/src/MurmurHash3.cpp). Jo autorystė nepriskiriama šiam darbui. Visa MurmurHash3 funkcija nekopijuojama ir neiškviečiama; žinomas maišymo blokas naudojamas aštuonių žodžių būsenos papildomame maišyme.
+XOR–poslinkių–daugybos blokas su `FirstMultiplier`, `SecondMultiplier` yra Austin Appleby **MurmurHash3 `fmix32`** (public domain) dalis: [pirminis kodas](https://github.com/aappleby/smhasher/blob/master/src/MurmurHash3.cpp). Jo autorystė nepriskiriama šiam darbui. Visa MurmurHash3 funkcija nekopijuojama ir neiškviečiama; žinomas maišymo blokas naudojamas aštuonių žodžių būsenos papildomame maišyme.
 
 Abiejų versijų laikas O(n), būsena O(1), visas įvesties įkėlimas O(n) atminties. v0.2 papildomai atlieka fiksuotus 32 būsenos žodžių atnaujinimus.
 
