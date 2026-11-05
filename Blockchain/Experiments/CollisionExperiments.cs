@@ -19,7 +19,7 @@ public static class CollisionExperiments
 
         var random = new Random(seed);
 
-        Directory.CreateDirectory("results");
+        Directory.CreateDirectory("results-v0.2");
 
         var summary = new List<string>
         {
@@ -116,17 +116,17 @@ public static class CollisionExperiments
         }
 
         File.WriteAllLines(
-            "results/collision-summary.csv",
+            "results-v0.2/collision-summary.csv",
             summary
         );
 
         File.WriteAllLines(
-            "results/collision-examples.csv",
+            "results-v0.2/collision-examples.csv",
             examples
         );
 
         File.WriteAllLines(
-            "results/collision-metadata.txt",
+            "results-v0.2/collision-metadata.txt",
             [
                 $"Seed: {seed}",
                 $"Alphabet: {alphabet}",
@@ -147,7 +147,7 @@ public static class CollisionExperiments
         );
 
         Console.WriteLine(
-            "Rezultatai: results/collision-summary.csv"
+            "Rezultatai: results-v0.2/collision-summary.csv"
         );
 
         RunStructuredTests();
@@ -296,12 +296,12 @@ public static class CollisionExperiments
         }
 
         File.WriteAllLines(
-            "results/collision-structured-inputs.csv",
+            "results-v0.2/collision-structured-inputs.csv",
             results
         );
 
         File.WriteAllLines(
-            "results/collision-structured-examples.csv",
+            "results-v0.2/collision-structured-examples.csv",
             collisions
         );
 

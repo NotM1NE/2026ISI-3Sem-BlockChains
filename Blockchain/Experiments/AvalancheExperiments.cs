@@ -19,13 +19,13 @@ public static class AvalancheExperiments
         int[] lengths = [1, 2, 4, 8, 10, 100, 500, 1000, 10000];
         var random = new Random(seed);
 
-        Directory.CreateDirectory("results");
+        Directory.CreateDirectory("results-v0.2");
 
         var measurements =
             new List<(int Length, int Bits, int Hex)>();
 
         using var raw = new StreamWriter(
-            "results/avalanche-raw.csv"
+            "results-v0.2/avalanche-raw.csv"
         );
 
         raw.WriteLine(
@@ -170,17 +170,17 @@ public static class AvalancheExperiments
         }
 
         File.WriteAllLines(
-            "results/avalanche-summary.csv",
+            "results-v0.2/avalanche-summary.csv",
             summary
         );
 
         File.WriteAllLines(
-            "results/avalanche-histogram.csv",
+            "results-v0.2/avalanche-histogram.csv",
             histogram
         );
 
         File.WriteAllLines(
-            "results/avalanche-metadata.txt",
+            "results-v0.2/avalanche-metadata.txt",
             [
                 $"Seed: {seed}",
                 $"Alphabet: {alphabet}",
@@ -197,7 +197,7 @@ public static class AvalancheExperiments
         );
 
         Console.WriteLine(
-            "\nRezultatai išsaugoti results/avalanche-*.csv"
+            "\nRezultatai išsaugoti results-v0.2/avalanche-*.csv"
         );
 
         return 0;

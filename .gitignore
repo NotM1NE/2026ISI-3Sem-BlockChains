@@ -416,4 +416,5 @@ FodyWeavers.xsd
 
 test-data/
 results/
+results-v0.2/
 comparison-final/

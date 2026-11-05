@@ -6,11 +6,9 @@ namespace Blockchain.Services;
 public static class InputDistributorService
 {
     // v0.1 is kept unchanged so both algorithms use exactly the same experiments.
-    public static string AlgorithmVersion { get; set; } = "v0.2";
 
     public static uint[] Compute(byte[] input)
     {
-        if (AlgorithmVersion == "v0.1") return ComputeV01(input);
         uint[] h = ComputeV01(input);
 
         // Include all 64 bits of the byte length, including for an empty input.

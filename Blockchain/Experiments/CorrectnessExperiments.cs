@@ -62,7 +62,7 @@ public static class CorrectnessExperiments
             }
         }
 
-        Directory.CreateDirectory("results");
+        Directory.CreateDirectory("results-v0.2");
         Directory.CreateDirectory("test-data/correctness");
 
         var rows = new List<string>
@@ -127,8 +127,8 @@ public static class CorrectnessExperiments
             );
         }
 
-        string resultsPath = "results/correctness.csv";
-        string baselinePath = "results/correctness-baseline.csv";
+        string resultsPath = "results-v0.2/correctness.csv";
+        string baselinePath = "results-v0.2/correctness-baseline.csv";
 
         File.WriteAllLines(resultsPath, rows);
 

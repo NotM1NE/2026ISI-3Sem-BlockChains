@@ -32,7 +32,7 @@ public static class PerformanceExperiments
 
         List<byte[]> inputs = CreateInputs(completeFile);
 
-        Directory.CreateDirectory("results");
+        Directory.CreateDirectory("results-v0.2");
 
         var rawRows = new List<string>
         {
@@ -122,17 +122,17 @@ public static class PerformanceExperiments
         }
 
         File.WriteAllLines(
-            "results/performance-raw.csv",
+            "results-v0.2/performance-raw.csv",
             rawRows
         );
 
         File.WriteAllLines(
-            "results/performance-summary.csv",
+            "results-v0.2/performance-summary.csv",
             summaryRows
         );
 
         File.WriteAllLines(
-            "results/performance-metadata.txt",
+            "results-v0.2/performance-metadata.txt",
             [
                 $"Samples per input: {sampleCount}",
                 $"Runtime: {RuntimeInformation.FrameworkDescription}",
@@ -148,7 +148,7 @@ public static class PerformanceExperiments
         );
 
         Console.WriteLine(
-            "\nRezultatai: results/performance-*.csv"
+            "\nRezultatai: results-v0.2/performance-*.csv"
         );
 
         return 0;

@@ -10,7 +10,7 @@ public static class GuessingExperiments
 {
     public static int Run()
     {
-        Directory.CreateDirectory("results");
+        Directory.CreateDirectory("results-v0.2");
 
         // Tik bandymo paruošimas žino pasirinktą PIN.
         const string targetInput = "1234";
@@ -18,7 +18,7 @@ public static class GuessingExperiments
 
         // Druską sukuriame vieną kartą ir išsaugome,
         // kad kitoms algoritmo versijoms naudotume tą pačią.
-        const string saltPath = "results/guessing-salt.hex";
+        const string saltPath = "results-v0.2/guessing-salt.hex";
 
         byte[] salt;
 
@@ -49,11 +49,11 @@ public static class GuessingExperiments
         rows.Add(Search("without_salt", plainTargetHash, [], rawRows));
         rows.Add(Search("public_salt", saltedTargetHash, salt, rawRows));
 
-        File.WriteAllLines("results/guessing-summary.csv", rows);
-        File.WriteAllLines("results/guessing-raw.csv", rawRows);
+        File.WriteAllLines("results-v0.2/guessing-summary.csv", rows);
+        File.WriteAllLines("results-v0.2/guessing-raw.csv", rawRows);
 
         File.WriteAllLines(
-            "results/guessing-metadata.txt",
+            "results-v0.2/guessing-metadata.txt",
             [
                 "Candidates: 0000–9999",
                 "Measured runs per mode: 10",
@@ -75,7 +75,7 @@ public static class GuessingExperiments
             ]
         );
 
-        Console.WriteLine("\nRezultatai: results/guessing-summary.csv ir results/guessing-raw.csv");
+        Console.WriteLine("\nRezultatai: results-v0.2/guessing-summary.csv ir results-v0.2/guessing-raw.csv");
 
         return 0;
     }
