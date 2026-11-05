@@ -145,7 +145,7 @@ Imamos pirmos 1, 2, 4, 8… eilutės ir visas failas. Baitai paruošiami prieš 
 | 76384 | 0.281861 | 0.289518 | 0.293961 | 0.241027 | 0.241341 | 0.241636 |
 
 
-<!-- Čia įkelti Excel lapo „Sparta“ grafiką: baitai → vienos maišos laikas, abi versijos. -->
+<img width="1627" height="566" alt="image" src="https://github.com/user-attachments/assets/722c4882-305f-440d-8b54-cea47b962e6d" />
 
 Laikas didėja maždaug tiesiškai. Visam failui v0.1 vidurkis 0,289518 ms, v0.2 0,241341 ms šiame seanse, tačiau tai **neįrodo**, kad papildomos operacijos spartina algoritmą: min./maks. intervalai čia nesusikerta, bet versijos matuotos nuosekliai viename procese kiekvienai versijai, todėl galima JIT / sistemos apkrovos įtaka. Mažų įvesčių anomalijos taip pat išlieka. Struktūriškai v0.2 turi papildomą fiksuotą darbą; patikimam greičio pranašumo teiginiui reikėtų atskirai valdyto ir kartojamo matavimo. Spartos skirtumo nepriskiriame saugumo pagerėjimui.
 
@@ -190,8 +190,7 @@ Kiekvienoje poroje pakeistas vienas ASCII simbolis kitu. Tai gali pakeisti kelis
 
 `all` reiškia visus devynis ilgius, 225 000 porų. **Privalomų keturių ilgių** 100 000 porų bitų vidurkis: v0.1 **48.8561 %**, v0.2 **49.9913 %**. Jų HEX vidurkiai: **91.7901 %** ir **93.7615 %**. Šios reikšmės perskaičiuotos iš pradinių porų duomenų, todėl gali paskutiniu skaitmeniu skirtis nuo suapvalintų ilgių vidurkių vidurkio.
 
-<!-- Čia įkelti Excel lapo „Lavina“ privalomų 4 ilgių histogramą. -->
-<!-- Papildomai galima įkelti Excel lapo „Palyginimas“ vidurkių pagal ilgį grafiką. -->
+<img width="1839" height="625" alt="image" src="https://github.com/user-attachments/assets/88e51b2e-8cd1-487e-a7d7-bd445ad67761" />
 
 Didžiausias pagerėjimas labai trumpoms įvestims: 1 simbolio vidurkis 24,7459 % → 49,9812 %, 2 simbolių 31,2706 % → 49,9991 %. Bendras minimumas 12,1094 % → 35,5469 %. v0.2 pasklidimas šiame rinkinyje nuoseklesnis, tačiau nėra reikalavimo kiekvienai porai pasiekti 50 %. Orientyrai – apie 50 % bitams ir 93,75 % HEX: nepriklausomi bitai sutampa su tikimybe 1/2, HEX pozicija su 1/16.
 
@@ -241,7 +240,7 @@ Paieška gauna tik tikslinę maišą ir, kai taikoma, druską. Bandomi visi `000
 | v0.2 | public_salt | 10 | 10000 | 9.252950 | 9.115000 | 9.494400 | 1234 |
 
 
-<!-- Čia pasirinktinai įkelti Excel lapo „Spejimas“ laikų palyginimo grafiką. -->
+<img width="1739" height="448" alt="image" src="https://github.com/user-attachments/assets/cdf3baf3-0479-44a5-91f5-7ad82c659166" />
 
 Laikai yra visos 10 000 kandidatų paieškos, ne vienos maišos. Matuojamas formatavimas, UTF-8 kodavimas, baitų sujungimas, maiša, palyginimas ir sutapimo registravimas. Į konsolę rašoma po matavimo. Excel suvestinėje vidurkis, min. ir maks. skaičiuojami iš visų atskirų laikų.
 
