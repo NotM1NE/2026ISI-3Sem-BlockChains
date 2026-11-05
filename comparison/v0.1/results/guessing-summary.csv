@@ -1,3 +1,0 @@
-mode,attempts,elapsed_ms,matches,matching_candidates
-without_salt,10000,13.054700,1,2026
-public_salt,10000,9.780300,1,2026

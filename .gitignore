@@ -416,16 +416,4 @@ FodyWeavers.xsd
 
 test-data/
 results/
-# Version comparison is part of the submitted experiment evidence.
-!comparison/
-!comparison/**/results/
-!comparison/**/results/**
-!Blockchain/test-data/
-Blockchain/test-data/*
-!Blockchain/test-data/konstitucija.txt
-comparison-rerun*/
-
-# Final comparison evidence
-!comparison-final/
-!comparison-final/**/results/
-!comparison-final/**/results/**
+comparison-final/
