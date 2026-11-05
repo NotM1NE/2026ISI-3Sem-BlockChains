@@ -6,7 +6,7 @@ v0.1 yra pradinė projekto maišos realizacija. v0.2 yra jos patobulinimas su DI
 
 ## Paleidimas
 
-Reikia .NET 9 vykdymo aplinkos ir suderinamo SDK. **Šioje šakoje programa visada vykdo v0.2; versijų pasirinkimo argumento nėra.** v0.1 ir v0.2 lentelės žemiau aprašo anksčiau atliktą ir išsaugotą bendrą palyginimą.
+Reikia .NET 9 vykdymo aplinkos ir suderinamo SDK. v0.1 ir v0.2 lentelės žemiau aprašo anksčiau atliktą ir išsaugotą bendrą palyginimą.
 
 Komandos iš repozitorijos šaknies:
 
