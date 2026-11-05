@@ -16,7 +16,7 @@ public static class AvalancheExperiments
         const string alphabet =
             "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-        int[] lengths = [10, 100, 500, 1000];
+        int[] lengths = [1, 2, 4, 8, 10, 100, 500, 1000, 10000];
         var random = new Random(seed);
 
         Directory.CreateDirectory("results");

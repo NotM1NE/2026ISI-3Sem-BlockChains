@@ -11,6 +11,6 @@ public static class HashInitialState
         50u,
         60u,
         70u,
-        80u
+        80u,
     ];
 }

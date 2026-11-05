@@ -13,7 +13,7 @@ public static class HashInputHelper
         for (int i = 0; i < input.Length; i++)
         {
             int hNumber = i % 8;
-            Console.WriteLine($"Baitas {i} ({input[i]:X2}) → H{hNumber}");
+            Console.WriteLine($"Baitas {i} ({input[i]:X2}) --> H{hNumber}");
         }
 
         return input;

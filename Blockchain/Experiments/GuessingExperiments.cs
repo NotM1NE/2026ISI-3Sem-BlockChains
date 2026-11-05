@@ -13,7 +13,7 @@ public static class GuessingExperiments
         Directory.CreateDirectory("results");
 
         // Tik bandymo paruošimas žino pasirinktą PIN.
-        const string targetInput = "2026";
+        const string targetInput = "1234";
         byte[] targetBytes = Encoding.UTF8.GetBytes(targetInput);
 
         // Druską sukuriame vieną kartą ir išsaugome,
@@ -24,39 +24,42 @@ public static class GuessingExperiments
 
         if (File.Exists(saltPath))
         {
-            salt = Convert.FromHexString(
-                File.ReadAllText(saltPath).Trim()
-            );
+            salt = Convert.FromHexString(File.ReadAllText(saltPath).Trim());
         }
         else
         {
             salt = RandomNumberGenerator.GetBytes(16);
-            File.WriteAllText(
-                saltPath,
-                Convert.ToHexString(salt)
-            );
+            File.WriteAllText(saltPath, Convert.ToHexString(salt));
         }
 
         string plainTargetHash = ComputeHex(targetBytes);
-        string saltedTargetHash = ComputeHex(
-            Combine(targetBytes, salt)
-        );
+        string saltedTargetHash = ComputeHex(Combine(targetBytes, salt));
 
         var rows = new List<string>
         {
-            "mode,attempts,elapsed_ms,matches,matching_candidates"
+            "mode,runs,attempts_per_run,total_attempts,avg_ms,min_ms,max_ms,matches,matching_candidates"
+        };
+
+        var rawRows = new List<string>
+        {
+            "mode,run,attempts,elapsed_ms,matches,matching_candidates"
         };
 
         // Paieška gauna hash ir druską, bet ne pasirinktą PIN.
-        rows.Add(Search("without_salt", plainTargetHash, []));
-        rows.Add(Search("public_salt", saltedTargetHash, salt));
+        rows.Add(Search("without_salt", plainTargetHash, [], rawRows));
+        rows.Add(Search("public_salt", saltedTargetHash, salt, rawRows));
 
         File.WriteAllLines("results/guessing-summary.csv", rows);
+        File.WriteAllLines("results/guessing-raw.csv", rawRows);
 
         File.WriteAllLines(
             "results/guessing-metadata.txt",
             [
                 "Candidates: 0000–9999",
+                "Measured runs per mode: 10",
+                "Candidates per run: 10000; total per mode: 100000",
+                "avg_ms is the mean time of one complete 10000-candidate search",
+                "Warmup: 1000 hashes per mode, excluded from timing",
                 "Candidate encoding: UTF-8, four ASCII digits",
                 $"Target input used in preparation: {targetInput}",
                 $"Target hash without salt: {plainTargetHash}",
@@ -72,9 +75,7 @@ public static class GuessingExperiments
             ]
         );
 
-        Console.WriteLine(
-            "\nRezultatai: results/guessing-summary.csv"
-        );
+        Console.WriteLine("\nRezultatai: results/guessing-summary.csv ir results/guessing-raw.csv");
 
         return 0;
     }
@@ -82,57 +83,72 @@ public static class GuessingExperiments
     private static string Search(
         string mode,
         string targetHash,
-        byte[] salt)
+        byte[] salt,
+        List<string> rawRows)
     {
-        // Apšilimas prieš matavimą.
+        const int runCount = 10;
+
+        // Apšilimas neįtraukiamas į dešimt matuojamų paleidimų.
         for (int i = 0; i < 1000; i++)
+            ComputeHex(Combine(Encoding.UTF8.GetBytes("0000"), salt));
+
+        var times = new List<double>();
+        List<string>? firstMatches = null;
+
+        for (int run = 1; run <= runCount; run++)
         {
-            ComputeHex(
-                Combine(Encoding.UTF8.GetBytes("0000"), salt)
-            );
-        }
+            var matches = new List<string>();
+            int attempts = 0;
+            var stopwatch = Stopwatch.StartNew();
 
-        var matches = new List<string>();
-        int attempts = 0;
-
-        var stopwatch = Stopwatch.StartNew();
-
-        for (int number = 0; number <= 9999; number++)
-        {
-            string candidate = number.ToString(
-                "D4",
-                CultureInfo.InvariantCulture
-            );
-
-            byte[] candidateBytes = Encoding.UTF8.GetBytes(candidate);
-
-            string candidateHash = ComputeHex(
-                Combine(candidateBytes, salt)
-            );
-
-            attempts++;
-
-            if (candidateHash == targetHash)
+            for (int number = 0; number <= 9999; number++)
             {
-                matches.Add(candidate);
+                string candidate = number.ToString("D4", CultureInfo.InvariantCulture);
+                byte[] candidateBytes = Encoding.UTF8.GetBytes(candidate);
+                string candidateHash = ComputeHex(Combine(candidateBytes, salt));
+                attempts++;
+
+                if (candidateHash == targetHash)
+                    matches.Add(candidate);
             }
+
+            stopwatch.Stop();
+            double milliseconds = stopwatch.Elapsed.TotalMilliseconds;
+            times.Add(milliseconds);
+
+            // Laikai gali skirtis, tačiau rasti kandidatai turi sutapti.
+            if (firstMatches is null)
+                firstMatches = matches;
+            else if (!firstMatches.SequenceEqual(matches))
+                throw new InvalidOperationException("Tarp paleidimų pasikeitė rasti kandidatai.");
+
+            rawRows.Add($"{mode},{run},{attempts},{Number(milliseconds)}," +
+                        $"{matches.Count},{string.Join(";", matches)}");
         }
 
-        stopwatch.Stop();
-
-        string elapsed = stopwatch.Elapsed.TotalMilliseconds
-            .ToString("F6", CultureInfo.InvariantCulture);
+        double average = times.Average();
+        double minimum = times.Min();
+        double maximum = times.Max();
+        string candidates = string.Join(";", firstMatches!);
 
         Console.WriteLine(
             $"\nRežimas: {mode}\n" +
-            $"Bandymų: {attempts}\n" +
-            $"Laikas: {elapsed} ms\n" +
-            $"Sutampantys kandidatai: {string.Join("; ", matches)}"
+            $"Matuotų paleidimų: {runCount}\n" +
+            "Bandymų viename paleidime: 10000\n" +
+            $"Bandymų iš viso: {runCount * 10000}\n" +
+            $"Vidutinis vieno paleidimo laikas: {Number(average)} ms\n" +
+            $"Mažiausias laikas: {Number(minimum)} ms\n" +
+            $"Didžiausias laikas: {Number(maximum)} ms\n" +
+            $"Sutampantys kandidatai kiekviename paleidime: {candidates}"
         );
 
-        return $"{mode},{attempts},{elapsed},{matches.Count}," +
-               $"{string.Join(";", matches)}";
+        return $"{mode},{runCount},10000,{runCount * 10000}," +
+               $"{Number(average)},{Number(minimum)},{Number(maximum)}," +
+               $"{firstMatches!.Count},{candidates}";
     }
+
+    private static string Number(double value) =>
+        value.ToString("F6", CultureInfo.InvariantCulture);
 
     private static byte[] Combine(byte[] input, byte[] salt)
     {

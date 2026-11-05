@@ -18,12 +18,6 @@ public class Program
         if (args.Length == 1 && args[0] == "--guessing")
             return GuessingExperiments.Run();
 
-        if (args.Length > 1)
-        {
-            Console.Error.WriteLine("Naudojimas: dotnet run -- [failo kelias]");
-            return 1;
-        }
-
         if (args.Length == 1 && args[0] == "--collisions")
             return CollisionExperiments.Run();
 
