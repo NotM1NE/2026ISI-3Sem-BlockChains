@@ -1,4 +1,4 @@
-﻿using Blockchain.Experiments;
+using Blockchain.Experiments;
 using Blockchain.Helpers;
 using Blockchain.Services;
 
@@ -8,9 +8,22 @@ public class Program
 {
     static int Main(string[] args)
     {
+        Console.InputEncoding = System.Text.Encoding.UTF8;
+        Console.OutputEncoding = System.Text.Encoding.UTF8;
+        
+        // Optional prefix: --version v0.1 or --version v0.2.
+        if (args.Length > 0 && args[0] == "--version")
+        {
+            if (args.Length < 2 || (args[1] != "v0.1" && args[1] != "v0.2"))
+            {
+                Console.Error.WriteLine("Naudojimas: --version v0.1|v0.2 [eksperimentas arba failas]");
+                return 1;
+            }
+            InputDistributorService.AlgorithmVersion = args[1];
+            args = args.Skip(2).ToArray();
+        }
         if (args.Length == 1 && args[0] == "--test")
             return CorrectnessExperiments.Run();
-
 
         if (args.Length == 1 && args[0] == "--avalanche")
             return AvalancheExperiments.Run();
