@@ -186,12 +186,6 @@ Slaptas atsitiktinumas `r` konstrukcijoje `H(input || r)` reikštų, kad paiešk
 - Mažas PIN kandidatų rinkinys lengvai perrenkamas ir su vieša druska.
 - Blokų grandinėse maišos gali susieti blokus ir būti naudojamos Merkle struktūrose. Šiame darbe sukurta maišos funkcija ir bandymai, ne pilna blokų grandinė.
 
-## Rezultatų failai ir Excel
-
-`Blockchain/results/` turi teisingumo lenteles, spartos pradinius matavimus ir suvestinę, kolizijų rinkinių suvestines bei pavyzdžius, lavinos 225 000 porų pradinius matavimus, histogramą ir suvestinę, PIN dešimties paleidimų laikus, druską ir aplinkos metaduomenis. Pavyzdžių failo su vien antrašte nereikia laikyti klaida, jei kolizijų nerasta.
-
-[Excel lentelės ir redaguojami grafikai](Rezultatai-v01.xlsx). Excel perkelti šio seanso rezultatai; jis automatiškai neatsinaujina paleidus programą. Pirminiai CSV lieka autoritetingas šaltinis. Iš suapvalintų CSV laikų perskaičiuoti vidurkiai paskutiniu skaitmeniu gali nežymiai skirtis nuo suvestinių.
-
 ## DI pagalba ir šaltiniai
 
 v0.1 algoritmo realizacija paimta iš autoriaus esamo projekto. Testų rengimui ir aiškinimui, 10 paleidimų vidurkio pakeitimui, rezultatų analizei, README ir Excel parengimui naudota ChatGPT / Codex (GPT-6) pagalba. Šis aprašymas neteigia, kad visas pateiktas kodas sukurtas be DI; ankstesnę algoritmo kūrimo istoriją reikia vertinti pagal faktinius projekto įrašus.
