@@ -233,12 +233,6 @@ Slaptam `r` konstrukcijoje `H(input || r)` reikėtų ieškoti ir pranešimo, ir 
 5. Mažas PIN rinkinys perrenkamas ir su vieša druska. Geras lavinos efektas neišplečia kandidatų erdvės.
 6. Maišos naudojamos blokams susieti ir Merkle struktūrose. Šiame darbe įgyvendinta funkcija ir jos vertinimas, ne pilna blokų grandinė ir ne saugumo įrodymas.
 
-## Rezultatai ir grafikai
-
-[Excel lentelės ir redaguojami grafikai](Palyginimas-v01-v02.xlsx): bendras palyginimas, teisingumas, sparta, kolizijos, lavina ir PIN paieška. CSV yra pirminiai rezultatai; Excel – šio seanso kopija, automatiškai neperskaitanti naujų CSV. `comparison-final/*/results` išsaugo pradines poras, laiko matavimus, suvestines, histogramas, tą pačią druską ir aplinkos metaduomenis. Generavimo kodas išsaugo seed, abėcėlę ir imtis.
-
-Paveikslų į README neįterpta autoriaus prašymu. Reikalingi spartos grafikas ir bitų skirtumo histograma jau yra Excel; aukščiau pažymėtos vietos jų įkėlimui.
-
 ## DI naudojimas, autorystė ir šaltiniai
 
 Pradinė v0.1 realizacija yra autoriaus esamo projekto algoritmas. v0.2 galutinį maišymą, bendrą bandymų vykdymą, README, analizę ir Excel padėjo parengti Codex / GPT-6. Ankstesnių testų rengimui, aiškinimui ir dešimties PIN paleidimų pakeitimui taip pat naudota ChatGPT / Codex pagalba. Viso testavimo kodo nepriskiriame darbui be DI. Faktinė ankstesnio algoritmo kūrimo istorija vertinama pagal tikrus projekto įrašus.
