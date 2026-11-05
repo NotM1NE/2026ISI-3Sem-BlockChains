@@ -1,0 +1,62 @@
+[
+  {
+    "version": "v0.1",
+    "input": "",
+    "pass": true,
+    "hash": "0000000A000000140000001E00000028000000320000003C0000004600000050"
+  },
+  {
+    "version": "v0.1",
+    "input": "a",
+    "pass": true,
+    "hash": "00005DA008C7A000B700F0D21694F128F69D521DBFB49F1EEEED01F83831C666"
+  },
+  {
+    "version": "v0.1",
+    "input": "Ąžuolas 🌳",
+    "pass": true,
+    "hash": "28A42181FF5A97C9454528D7121748931251F3FB2F27C775D7258382D2E5F1F2"
+  },
+  {
+    "version": "v0.1",
+    "input": " Domas",
+    "pass": true,
+    "hash": "D985CA2CAF5F619830B8FB5C9EA7C13D4051BD78B92DCAC3AF160C26AFFFEF45"
+  },
+  {
+    "version": "v0.1",
+    "input": "Domas ",
+    "pass": true,
+    "hash": "330EE53AA0E9C16AABF30935698ADC65CAF496FEEB00AA5E7765812D42E7FBA3"
+  },
+  {
+    "version": "v0.2",
+    "input": "",
+    "pass": true,
+    "hash": "8A355D685C1EDA0200E0182FB15CF4246EDE1658F738BAB6750D908B998EFBB9"
+  },
+  {
+    "version": "v0.2",
+    "input": "a",
+    "pass": true,
+    "hash": "CCFDC035662F0F3403DE02A5D85087F9673F38B8A6CB4DAF9D5DB0AB115E16E6"
+  },
+  {
+    "version": "v0.2",
+    "input": "Ąžuolas 🌳",
+    "pass": true,
+    "hash": "2BE0DAE0C303F65C56648C013602BD1ED29E75D687B2446F966A83DFB05C31AC"
+  },
+  {
+    "version": "v0.2",
+    "input": " Domas",
+    "pass": true,
+    "hash": "F6E102A83E9FDA27873D979E21D4747D55A3E0AB9CD42BB77283CD2F945FCA2E"
+  },
+  {
+    "version": "v0.2",
+    "input": "Domas ",
+    "pass": true,
+    "hash": "8D9C897CFBDD9E287A7BE863EECEAC84268CB92BC87BF183121AB8B082A9D8E3"
+  }
+]

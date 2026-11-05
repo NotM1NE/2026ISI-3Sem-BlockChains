@@ -1,0 +1,17 @@
+Candidates: 0000–9999
+Measured runs per mode: 10
+Candidates per run: 10000; total per mode: 100000
+avg_ms is the mean time of one complete 10000-candidate search
+Warmup: 1000 hashes per mode, excluded from timing
+Candidate encoding: UTF-8, four ASCII digits
+Target input used in preparation: 1234
+Target hash without salt: B0F9DCF7AC236F48CE7A3C48EAFD441B11E6CF5D4D57263CE4D03A53CA397105
+Target hash with salt: FBDD6D9261E37DDC6F261CB4FE5C2ABF1BEDB21B517C87435FFF10989B5CBA26
+Public salt HEX: 4CF4E63BF35FB456260ED6078304FBA6
+Salt length: 16 bytes
+Construction: H(input bytes || raw salt bytes)
+Salt is fixed for all candidates of this target
+All candidates are checked; search does not stop at first match
+Timing includes candidate formatting, encoding and hashing
+Runtime: .NET 9.0.20
+OS: Microsoft Windows 10.0.26200

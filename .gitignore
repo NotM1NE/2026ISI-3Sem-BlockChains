@@ -424,3 +424,8 @@ results/
 Blockchain/test-data/*
 !Blockchain/test-data/konstitucija.txt
 comparison-rerun*/
+
+# Final comparison evidence
+!comparison-final/
+!comparison-final/**/results/
+!comparison-final/**/results/**

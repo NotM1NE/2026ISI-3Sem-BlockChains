@@ -1,0 +1,11 @@
+Seed: 2026
+Alphabet: ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789
+Pairs per length: 25000
+Lengths: 1,2,4,8,10,100,500,1000,10000
+Runtime: .NET 9.0.20
+OS: Microsoft Windows 10.0.26200
+Architecture: X64
+Encoding: UTF-8
+Each pair differs by exactly one ASCII character
+Replacement character is selected uniformly from alternatives
+Input lengths in characters and bytes are equal

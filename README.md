@@ -1,32 +1,41 @@
-# Mokomasis 256 bitų maišos generatorius
+# Mokomasis 256 bitų maišos generatorius: v0.1 ir v0.2
 
-Autorius: Jakub Rogoža. Blokų grandinių technologijų 1 praktinė užduotis.
+Autorius: Jakub Rogoža. VU blokų grandinių technologijų 1 praktinė užduotis.
 
-## Greitas paleidimas
+v0.1 yra pradinė projekto maišos realizacija. v0.2 yra jos patobulinimas su DI pagalba. Ši analizė lygina abi versijas **vienodomis sąlygomis**, naudojant išplėstą devynių ilgių rinkinį. Tai mokomasis algoritmas, ne saugi slaptažodžių ar kitų realių sistemų apsaugos priemonė.
 
-Reikia .NET 9 runtime ir suderinamo SDK. Šis seansas: SDK 10.0.401, runtime .NET 9.0.20, Windows build 26200, x64, 24 loginiai procesoriai. Visų eksperimentų konfigūracija Release; detalės yra `comparison/*/results/*-metadata.txt`.
+## Paleidimas
 
-Iš repozitorijos šaknies:
+Reikia .NET 9 vykdymo aplinkos ir suderinamo SDK. Komandos iš repozitorijos šaknies:
 
 ```powershell
 dotnet build Blockchain -c Release
-dotnet run --project Blockchain -c Release
 dotnet run --project Blockchain -c Release -- --version v0.1
+dotnet run --project Blockchain -c Release -- --version v0.2
 dotnet run --project Blockchain -c Release -- --version v0.2 "Blockchain/test-data/konstitucija.txt"
-./Compare-Versions.ps1
 ```
 
-Numatytoji versija v0.2. Eksperimentus atskirai paleisk iš `Blockchain` aplanko: `dotnet run -c Release -- --version v0.2 --test`, taip pat `--avalanche`, `--collisions`, `--performance`, `--guessing`. `--test` paleisk du kartus. Tame pačiame `results` aplanke nekeisk versijos, nes baseline priklauso nuo algoritmo; bendras scenarijus abiem versijoms sukuria atskirus aplankus ir neperrašo ankstesnio seanso.
+Be versijos argumento numatytoji v0.2. Be failo kelio įvedama viena teksto eilutė; su keliu maiša skaičiuojama iš failo turinio. Neperskaitomas failas praneša klaidą ir grąžina 1.
 
-Trumpas pasirengimas gynimui: [GYNIMAS.md](GYNIMAS.md).
+Visus bandymus abiem versijoms pakartoti:
 
-## Įvestis, išvestis ir pradinė idėja
+```powershell
+./Compare-Versions.ps1 -OutputDirectory comparison-naujas
+```
 
-Tekstas koduojamas UTF-8; failas skaitomas kaip tikslūs baitai, įskaitant BOM ir eilučių pabaigas. Tarpai nešalinami, registras nekeičiamas, Unicode nenormalizuojamas. Rankinis režimas priima vieną eilutę ir neįtraukia Enter pabaigos. `Ąžuolas 🌳` užima 14 UTF-8 baitų. `File.ReadAllBytes` įkelia visą failą: praktinė riba priklauso nuo atminties ir .NET masyvo ribų, srautinio apdorojimo nėra. Neperskaitomas failas praneša klaidą ir grąžina 1.
+Pasirinkti dar neegzistuojantį rezultatų aplanką. Scenarijus sukuria atskirus versijų aplankus, naudoja tą patį konstitucijos failą bei viešą druską ir kiekvienai versijai vykdo `--test` du kartus, `--avalanche`, `--collisions`, `--performance`, `--guessing`. Dabartinio palyginimo rezultatai saugomi **`comparison-final`**. Senasis `comparison` yra ankstesnis, kitų imčių seansas ir nėra šios analizės pagrindas.
 
-Būsena: 8 × 32 bitų `uint` = 256 bitų = 32 baitai = 64 HEX simboliai. `X8` išsaugo pradinius nulius. Kiekvienam kvietimui sukuriama nauja pradinė būsena.
+Atskiram bandymui pereiti į `Blockchain`, pavyzdžiui, `dotnet run -c Release -- --version v0.1 --avalanche`. Įprastas eksperimento paleidimas perrašo jo failus darbiniame `results`, todėl versijų nelaikyti viename baseline aplanke.
 
-v0.1 pseudokodas:
+## Įvestis ir išvestis
+
+Tekstas koduojamas UTF-8; konsolės įvesties ir išvesties koduotė taip pat nustatyta UTF-8. `ReadLine` neįtraukia Enter eilutės pabaigos. Tarpai nešalinami, raidžių registras nekeičiamas, Unicode nenormalizuojamas. Failas skaitomas kaip tikslūs baitai, įskaitant BOM ir LF / CRLF. Todėl vizualiai panašūs tekstai gali skirtis baitais. `Ąžuolas 🌳` užima 14 UTF-8 baitų.
+
+8 `uint` × 32 bitai = 256 bitų būsena. Kiekvieną žodį išvedant `X8` formatu gaunamos 64 didžiosios HEX pozicijos su pradiniais nuliais. HEX yra rezultato užrašas, ne šifravimas. Rankinis režimas priima vieną eilutę. `File.ReadAllBytes` įkelia visą failą; praktinė riba priklauso nuo atminties ir .NET masyvų ribų, srautinio apdorojimo nėra.
+
+## v0.1 principas
+
+Kiekvienam funkcijos kvietimui sukuriama nauja būsena `[10,20,30,40,50,60,70,80]`. Kiekvienas baitas keičia pradžios elementą, o jo poveikis perduodamas per likusius septynis. Pradžios pozicija cikliškai juda; pasiekus aštuntą grįžtama prie pirmos. Papildomų būsenos elementų nekuriama.
 
 ```text
 H ← [10,20,30,40,50,60,70,80]; start ← 0
@@ -38,191 +47,204 @@ kiekvienam baitui b:
         H[current] ← ROTL32(H[current] + 3 × H[previous], 11)
         previous ← current
     start ← (start + 1) mod 8
-grąžinti H
+grąžinti aštuonis H žodžius
 ```
 
-Sudėtis ir daugyba vyksta modulo 2^32 (`unchecked`). Atnaujinimai vyksta vietoje: vėlesnis elementas naudoja jau atnaujintą ankstesnį. Konstantos ir rotacijos yra projektavimo pasirinkimai, ne saugumo garantija.
+Atnaujinama vietoje: kitas elementas naudoja jau atnaujintą ankstesnį. Sudėtis ir daugyba su `unchecked` apvyniojama modulo 2^32. Rotacija grąžina išstumtus bitus kitame 32 bitų žodžio gale. Konstantos ir rotacijų dydžiai yra projektavimo pasirinkimai, ne saugumo garantijos. Tuščia v0.1 įvestis grąžina pradinę būseną, užrašytą HEX. Galutinio papildomo maišymo nėra.
 
-v0.2 pseudokodas:
+## v0.2: ką pakeitė DI pasiūlymas
+
+Pirmiausia vykdoma nepakeista `ComputeV01(input)`. Tada į pirmus du žodžius XOR būdu įtraukiamos apatinės ir viršutinės 64 bitų baitų ilgio dalys. Po to atliekami keturi ciklai po aštuonis būsenos atnaujinimus.
 
 ```text
-H ← v0.1(įvestis)
-H[0] ← H[0] XOR apatiniai32(baitų_ilgis)
-H[1] ← H[1] XOR viršutiniai32(baitų_ilgis)
+H ← v0.1(input)
+H[0] ← H[0] XOR apatiniai32(input ilgis baitais)
+H[1] ← H[1] XOR viršutiniai32(input ilgis baitais)
 round nuo 0 iki 3:
     i nuo 0 iki 7:
-        next ← H[(i+1) mod 8]; opposite ← H[(i+4) mod 8]
+        next ← H[(i+1) mod 8]
+        opposite ← H[(i+4) mod 8]
         x ← H[i] + ROTL32(next,7) + 0x9E3779B9 + round
         x ← x XOR ROTL32(opposite,13)
         x ← (x XOR (x >> 16)) × 0x85EBCA6B
         x ← (x XOR (x >> 13)) × 0xC2B2AE35
         H[i] ← x XOR (x >> 16)
-grąžinti kiekvieną H žodį formatu X8
+grąžinti H
 ```
 
-Visi atnaujinimai yra 32 bitų, vyksta vietoje. Tuščiai įvesčiai v0.1 lieka pradinė būsena, v0.2 vis tiek atlieka galutinį maišymą.
+Visi atnaujinimai 32 bitų, vyksta vietoje. Tikslas – paskutinio baito poveikiui suteikti papildomų pasklidimo žingsnių, o ilgį padaryti aiškia galutinio skaičiavimo dalimi. Keturi ciklai yra eksperimentinis pasirinkimas, neįrodyta optimali reikšmė.
 
-## Versijų palyginimas
+XOR–poslinkių–daugybos blokas su `0x85EBCA6B`, `0xC2B2AE35` yra Austin Appleby **MurmurHash3 `fmix32`** (public domain) dalis: [pirminis kodas](https://github.com/aappleby/smhasher/blob/master/src/MurmurHash3.cpp). Jo autorystė nepriskiriama šiam darbui. Visa MurmurHash3 funkcija nekopijuojama ir neiškviečiama; žinomas maišymo blokas naudojamas aštuonių žodžių būsenos papildomame maišyme.
 
-2026-11-05. Tai mokomasis algoritmas, o šie bandymai nėra kriptografinio saugumo įrodymas.
+Abiejų versijų laikas O(n), būsena O(1), visas įvesties įkėlimas O(n) atminties. v0.2 papildomai atlieka fiksuotus 32 būsenos žodžių atnaujinimus.
 
-## Kas pakeista
+## Vienodos bandymų sąlygos
 
-v0.1 įvesties apdorojimas išsaugotas kaip `ComputeV01`. v0.2 pirmiausia apskaičiuoja v0.1 būseną, XOR operacija įtraukia įvesties baitų ilgį į pirmus du 32 bitų žodžius ir atlieka keturis papildomus visos būsenos maišymo ciklus. Kiekvienas ciklas atnaujina visus aštuonis žodžius vietoje, naudodamas gretimą ir priešingą žodį, bitų rotacijas, XOR, poslinkius ir daugybą modulo 2^32.
+2026-11-05 naujas bendras seansas: SDK 10.0.401, runtime .NET 9.0.20, Windows metaduomenyse `Microsoft Windows 10.0.26200`, X64, 24 loginiai procesoriai, Release. Abiem versijoms tas pats kodas generuoja įvestis, seed 2026, abėcėlė `ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789`.
 
-Tikslas: po paskutinio įvesties baito dar lieka 32 būsenos žodžių atnaujinimai, todėl jo įtaka gali pasklisti toliau. Ilgio įtraukimas daro ilgį aiškia galutinio maišymo dalimi. Tuščiai įvesčiai taip pat vyksta galutinis maišymas. Keturi ciklai yra eksperimentinis pasirinkimas; neįrodyta, kad tai optimalus ar saugus skaičius.
+Privalomi ilgiai: **10, 100, 500, 1000**. Papildomi: **1, 2, 4, 8, 10 000**. Lavinai po 25 000 porų ilgiui: privaloma imtis 100 000, išplėsta 225 000 porų kiekvienai versijai. Kolizijoms po 100 000 porų ilgiui: 900 000 porų / versiją. PIN paieškai tas pats `1234`, ta pati išsaugota 16 baitų vieša druska ir po 10 matavimų kiekvienam režimui. Konstitucijos failas identiškas: 76 384 baitai, 789 eilutės.
 
-Naudoti XOR/poslinkių/daugybos maišymo principai ir žinomos konstantos `0x9E3779B9`, `0x85EBCA6B`, `0xC2B2AE35`; jos nėra naujai išrastos ar slapti raktai. Visa būsenos kombinavimo konstrukcija pateikta kode; standartinė maišos funkcija neiškviečiama.
+## 1–3. Teisingumas ir determinizmas
 
-## Lavinos efektas
+24 atvejai: tuščia įvestis, vieno baito, trumpas tekstas, UTF-8, tarpai, eilutės skirtukas, tvarkos pakeitimai, pasikartojimai, 1024 / 2048 / 4096 baitų atsitiktinės įvestys ir jų vieno baito pakeitimai pradžioje, viduryje bei gale.
 
-| Įvesties ilgis | v0.1 bitų vid. % | v0.2 bitų vid. % | v0.1 min. % | v0.2 min. % |
-|---|---:|---:|---:|---:|
-| 10 | 46.0729 | 49.9808 | 12.8906 | 37.1094 |
-| 100 | 49.6200 | 50.0111 | 15.2344 | 37.8906 |
-| 500 | 49.9264 | 49.9831 | 16.4062 | 37.8906 |
-| 1000 | 49.9774 | 50.0028 | 17.1875 | 36.3281 |
-| all | 48.8992 | 49.9945 | 12.8906 | 36.3281 |
+| Patikra | v0.1 | v0.2 |
+|---|---:|---:|
+| 64 tinkami HEX simboliai | 24 / 24 | 24 / 24 |
+| Pakartotiniai funkcijos kvietimai | 24 / 24 | 24 / 24 |
+| A → B → A | 24 / 24 | 24 / 24 |
+| Atminties ir failo baitų sutapimas | 24 / 24 | 24 / 24 |
+| Du atskiri paleidimai | Sutampa | Sutampa |
+| Tikra CLI: tuščia, ASCII, UTF-8, tarpai pradžioje / gale | 5 / 5 | 5 / 5 |
 
+CLI palygina konsolės ir failo rezultatą tiems patiems baitams; žurnalas `comparison-final/integration-checks.json`. v0.1 24 rezultatai sutapo su autoriaus pateiktu ankstesniu `correctness.csv`. Tai patvirtina, kad palyginime išsaugotas ankstesnis algoritmas. PASS nėra saugumo įrodymas.
 
-![Bitų skirtumo histograma](graphs/avalanche.svg)
+## 4. Spartos palyginimas
 
-Bendras vidurkis pagerėjo nuo 48,8992 % iki 49,9945 %. Viso rinkinio minimumas nuo 12,8906 % pakilo iki 36,3281 %. Tai rezultatai šioms konkrečioms poroms. v0.2 rezultatas nėra reikalavimas, kad kiekviena pora pakeistų bent 50 % bitų. HEX rodikliai ir visos min./maks./vid. reikšmės pateiktos `comparison/*/results/avalanche-summary.csv`.
+Imamos pirmos 1, 2, 4, 8… eilutės ir visas failas. Baitai paruošiami prieš laikmatį. Po 10 apšilimo kvietimų parenkami grupiniai kartojimai ir atliekami 5 matavimai dydžiui; lentelėje vienos maišos laikas. I/O ir konsolės išvedimas nematuojami, rezultatas panaudojamas kontrolinėje reikšmėje. Kartojimų skaičiai ir 55 pradiniai matavimai / versiją išsaugoti CSV bei Excel.
 
-## Sparta
-
-![Spartos grafikas](graphs/performance.svg)
-
-Visas failas turi 76 384 baitus. v0.1 vidurkis 0.301231 ms, v0.2 0.279937 ms. Tai vienas nuoseklus bandymų seansas; iš šio skirtumo negalima daryti išvados, kad papildomas maišymas pagreitino algoritmą. Matavimų sklaida, JIT optimizavimas ir sistemos apkrova ypač veikia mažas įvestis. v0.2 prideda fiksuotą operacijų skaičių, todėl asimptotinis laikas lieka O(n), būsena O(1), visas įvesties įkėlimas O(n) atminties. Žali matavimai ir minimumas / vidurkis / maksimumas saugomi atskirai kiekvienai versijai.
-
-## Kiti bandymai ir sąlygos
-
-- Abiem versijoms 24 teisingumo atvejai praėjo, taip pat sutapo dviejų atskirų paleidimų rezultatai.
-- v0.1 visų 24 maišų reikšmės sutapo su prieš pakeitimą išbandyto kodo rezultatais.
-- Tikra CLI integracija patikrinta su tuščia įvestimi, ASCII, lietuvišku tekstu su emoji, tarpais ir simbolių tvarka: rankinės įvesties ir failo maišos sutampa. Neegzistuojantis failas grąžina 1. Įrašas: `comparison/integration-checks.json`.
-- Abiem versijoms tikrinta po 100 000 skirtingų porų kiekvienam ilgiui 10, 100, 500, 1000; taip pat visas kiekvieno ilgio rinkinys ir 23 struktūruotos įvestys. Kolizijų nerasta.
-- Lavinos efektui po 25 000 porų kiekvienam ilgiui; seed 2026, ta pati ASCII abėcėlė ir generavimo kodas, .NET 9 vykdymo aplinka, SDK 10.0.401, Release.
-- Abiem kandidatų paieškoms naudojami `0000`–`9999`, ta pati 16 baitų vieša druska ir tikslinis PIN `2026`. Abi versijos randa `2026`, išbandžius 10 000 kandidatų. Druska išsaugota, ji nėra slapta.
-- Konstitucijos šaltinis: anksčiau projekto `test-data/konstitucija.txt` išsaugotas kurso failas, identiški 76 384 baitai abiem versijoms. Tiksli pradinė atsisiuntimo nuoroda šiame darbe neišlikusi; ji neišgalvota.
-
-## Ribotumai
-
-v0.2 yra deterministinė v0.1 būsenos ir ilgio transformacija. Jei dvi vienodo ilgio įvestys susiduria v0.1, jos susidurs ir v0.2: galutinis maišymas negali atkurti jau prarastos informacijos. Geresnė histograma savaime neįrodo geresnio atsparumo kolizijoms ar pirmavaizdžiams. Todėl konstrukcija mokomoji.
-
-## DI pagalba ir versijų istorija
-
-Šis v0.2 galutinis maišymas, versijos parinkimas, palyginimo automatizavimas ir dokumentacija parengti su Codex / GPT-6 pagalba. Pradinė v0.1 realizacija paimta iš esamo projekto; jos ankstesnės kūrimo istorijos nelaikome patikrintu darbo be DI įrodymu. Ankstesni testai bei README taip pat buvo rengiami su ChatGPT pagalba, kaip jau nurodyta ankstesniame README.
-
-2026-11-05 užklausa: sukurti naują šaką ir patobulinti algoritmą, palyginti bei pasirengti gynimui. Priimta: išlaikyti seną algoritmą, įtraukti ilgį, pridėti galutinį maišymą. Nepasirinkta visiškai perrašyti algoritmą, nes mažesnį pakeitimą lengviau pagrįsti ir palyginti. Nepriimtas teiginys, kad geras lavinos efektas įrodo saugumą. Patikra: kompiliavimas, abu teisingumo paleidimai, CLI integracija ir visi statistiniai eksperimentai.
-
-## Atkūrimas
-
-Iš repozitorijos šaknies paleisk `./Compare-Versions.ps1`. Kiekviena versija turi atskirą rezultatų ir baseline aplanką. Scenarijus sąmoningai naudoja tą pačią viešą druską ir tą patį konstitucijos failą. Eksperimentų generavimo kodas yra `Blockchain/Experiments`; išsaugoti seed ir abėcėlė. v0.2 yra numatytasis režimas; ankstesnei versijai: `dotnet run -c Release --project Blockchain -- --version v0.1 --test`.
-
-## Visos rezultatų suvestinės
-
-Laikai milisekundėmis, lavinos rodikliai procentais. `all` žymi visus keturis ilgius kartu. `pair_collisions` – porinės kolizijos; `all_collisions` ir `collision_groups` – viso ilgio rinkinio sutapimai tarp skirtingų įvesčių. `matches` – kandidatų paieškoje rastos įvestys.
-
-### v0.1
-
-**performance-summary.csv**
-
-| lines | bytes | repetitions | samples | min_ms | avg_ms | max_ms | megabytes_per_second |
-|---|---|---|---|---|---|---|---|
-| 1 | 71 | 65536 | 5 | 0.000285 | 0.001103 | 0.001475 | 64.388185 |
-| 2 | 125 | 131072 | 5 | 0.000447 | 0.000475 | 0.000490 | 263.229516 |
-| 4 | 209 | 65536 | 5 | 0.000676 | 0.000762 | 0.000812 | 274.101323 |
-| 8 | 370 | 65536 | 5 | 0.001380 | 0.001403 | 0.001434 | 263.641025 |
-| 16 | 1012 | 16384 | 5 | 0.003472 | 0.003772 | 0.003902 | 268.323371 |
-| 32 | 1873 | 8192 | 5 | 0.006561 | 0.006867 | 0.007215 | 272.740970 |
-| 64 | 3776 | 4096 | 5 | 0.013965 | 0.014714 | 0.015344 | 256.625423 |
-| 128 | 9283 | 2048 | 5 | 0.035488 | 0.035776 | 0.036390 | 259.474238 |
-| 256 | 20665 | 1024 | 5 | 0.078005 | 0.078820 | 0.079884 | 262.180819 |
-| 512 | 47946 | 512 | 5 | 0.176960 | 0.185368 | 0.194642 | 258.653537 |
-| 789 | 76384 | 256 | 5 | 0.288614 | 0.301231 | 0.327562 | 253.572695 |
-
-**avalanche-summary.csv**
-
-| length | pairs | bit_min_percent | bit_max_percent | bit_avg_percent | hex_min_percent | hex_max_percent | hex_avg_percent |
-|---|---|---|---|---|---|---|---|
-| 10 | 25000 | 12.8906 | 62.1094 | 46.0729 | 32.8125 | 100.0000 | 86.9915 |
-| 100 | 25000 | 15.2344 | 64.0625 | 49.6200 | 35.9375 | 100.0000 | 93.0658 |
-| 500 | 25000 | 16.4062 | 62.5000 | 49.9264 | 35.9375 | 100.0000 | 93.6305 |
-| 1000 | 25000 | 17.1875 | 63.6719 | 49.9774 | 39.0625 | 100.0000 | 93.7135 |
-| all | 100000 | 12.8906 | 64.0625 | 48.8992 | 32.8125 | 100.0000 | 91.8503 |
-
-**collision-summary.csv**
-
-| length | pairs | total_inputs | unique_inputs | pair_collisions | all_collisions | collision_groups |
+| Baitai | v0.1 min. ms | v0.1 vid. ms | v0.1 maks. ms | v0.2 min. ms | v0.2 vid. ms | v0.2 maks. ms |
 |---|---|---|---|---|---|---|
-| 10 | 100000 | 200000 | 200000 | 0 | 0 | 0 |
-| 100 | 100000 | 200000 | 200000 | 0 | 0 | 0 |
-| 500 | 100000 | 200000 | 200000 | 0 | 0 | 0 |
-| 1000 | 100000 | 200000 | 200000 | 0 | 0 | 0 |
+| 71 | 0.001370 | 0.001433 | 0.001600 | 0.001498 | 0.001551 | 0.001718 |
+| 125 | 0.000489 | 0.000631 | 0.001191 | 0.000500 | 0.001044 | 0.002618 |
+| 209 | 0.000786 | 0.000792 | 0.000811 | 0.000777 | 0.000783 | 0.000789 |
+| 370 | 0.001424 | 0.001432 | 0.001435 | 0.001288 | 0.001293 | 0.001299 |
+| 1012 | 0.003893 | 0.003898 | 0.003900 | 0.003307 | 0.003320 | 0.003347 |
+| 1873 | 0.007195 | 0.007209 | 0.007220 | 0.006025 | 0.006032 | 0.006038 |
+| 3776 | 0.013709 | 0.014364 | 0.014545 | 0.012027 | 0.012152 | 0.012295 |
+| 9283 | 0.032692 | 0.034521 | 0.036047 | 0.029423 | 0.029482 | 0.029625 |
+| 20665 | 0.074468 | 0.078361 | 0.079568 | 0.065449 | 0.065699 | 0.065930 |
+| 47946 | 0.173087 | 0.181718 | 0.185395 | 0.151750 | 0.151978 | 0.152384 |
+| 76384 | 0.281861 | 0.289518 | 0.293961 | 0.241027 | 0.241341 | 0.241636 |
 
-**guessing-summary.csv**
 
-| mode | attempts | elapsed_ms | matches | matching_candidates |
+<!-- Čia įkelti Excel lapo „Sparta“ grafiką: baitai → vienos maišos laikas, abi versijos. -->
+
+Laikas didėja maždaug tiesiškai. Visam failui v0.1 vidurkis 0,289518 ms, v0.2 0,241341 ms šiame seanse, tačiau tai **neįrodo**, kad papildomos operacijos spartina algoritmą: min./maks. intervalai čia nesusikerta, bet versijos matuotos nuosekliai viename procese kiekvienai versijai, todėl galima JIT / sistemos apkrovos įtaka. Mažų įvesčių anomalijos taip pat išlieka. Struktūriškai v0.2 turi papildomą fiksuotą darbą; patikimam greičio pranašumo teiginiui reikėtų atskirai valdyto ir kartojamo matavimo. Spartos skirtumo nepriskiriame saugumo pagerėjimui.
+
+## 5. Kolizijos
+
+Tikrinamos poros ir visas kiekvieno ilgio sugeneruotų įvesčių rinkinys. Kolizija skaičiuojama tik skirtingoms įvestims, o ne tai pačiai įvesčiai pasikartojus.
+
+| Ilgis | Poros / versiją | Skirtingų įvesčių / versiją | v0.1 porinės / viso rinkinio / grupės | v0.2 porinės / viso rinkinio / grupės |
 |---|---|---|---|---|
-| without_salt | 10000 | 13.054700 | 1 | 2026 |
-| public_salt | 10000 | 9.780300 | 1 | 2026 |
+| 1 | 100000 | 62 | 0 / 0 / 0 | 0 / 0 / 0 |
+| 2 | 100000 | 3844 | 0 / 0 / 0 | 0 / 0 / 0 |
+| 4 | 100000 | 198591 | 0 / 0 / 0 | 0 / 0 / 0 |
+| 8 | 100000 | 200000 | 0 / 0 / 0 | 0 / 0 / 0 |
+| 10 | 100000 | 200000 | 0 / 0 / 0 | 0 / 0 / 0 |
+| 100 | 100000 | 200000 | 0 / 0 / 0 | 0 / 0 / 0 |
+| 500 | 100000 | 200000 | 0 / 0 / 0 | 0 / 0 / 0 |
+| 1000 | 100000 | 200000 | 0 / 0 / 0 | 0 / 0 / 0 |
+| 10000 | 100000 | 200000 | 0 / 0 / 0 | 0 / 0 / 0 |
 
-### v0.2
 
-**performance-summary.csv**
+Vieno simbolio galimų įvesčių tik 62, dviejų – 3844. Tai paaiškina didelį kartojimąsi; 200 000 sugeneruotų įvesčių nėra tiek pat skirtingų įvesčių. Papildomi 23 struktūruoti atvejai (perstatymai, šablonai, tarpai, LF / CRLF) abiem versijoms kolizijų taip pat neparodė. Pavyzdžių CSV turi tik antraštes.
 
-| lines | bytes | repetitions | samples | min_ms | avg_ms | max_ms | megabytes_per_second |
-|---|---|---|---|---|---|---|---|
-| 1 | 71 | 32768 | 5 | 0.001502 | 0.001560 | 0.001731 | 45.512999 |
-| 2 | 125 | 32768 | 5 | 0.000517 | 0.001009 | 0.002540 | 123.909365 |
-| 4 | 209 | 65536 | 5 | 0.000777 | 0.000778 | 0.000782 | 268.493393 |
-| 8 | 370 | 65536 | 5 | 0.001290 | 0.001298 | 0.001315 | 285.127697 |
-| 16 | 1012 | 16384 | 5 | 0.003332 | 0.003376 | 0.003428 | 299.764139 |
-| 32 | 1873 | 16384 | 5 | 0.006048 | 0.006060 | 0.006073 | 309.096641 |
-| 64 | 3776 | 8192 | 5 | 0.012277 | 0.012553 | 0.013292 | 300.803758 |
-| 128 | 9283 | 2048 | 5 | 0.030326 | 0.030886 | 0.031710 | 300.557970 |
-| 256 | 20665 | 1024 | 5 | 0.067547 | 0.069890 | 0.075163 | 295.677932 |
-| 512 | 47946 | 512 | 5 | 0.156554 | 0.166803 | 0.177688 | 287.440995 |
-| 789 | 76384 | 256 | 5 | 0.246772 | 0.279937 | 0.328996 | 272.861668 |
+**Išvada:** abiem versijoms tirtuose rinkiniuose kolizijų nerasta. Pagerėjusio atsparumo kolizijoms šie rezultatai neįrodo. Kolizijos neišvengiamos, nes galimų įvesčių daugiau nei 2^256 išvesčių.
 
-**avalanche-summary.csv**
+## 6. Lavinos efektas
 
-| length | pairs | bit_min_percent | bit_max_percent | bit_avg_percent | hex_min_percent | hex_max_percent | hex_avg_percent |
-|---|---|---|---|---|---|---|---|
-| 10 | 25000 | 37.1094 | 62.8906 | 49.9808 | 75.0000 | 100.0000 | 93.7619 |
-| 100 | 25000 | 37.8906 | 62.5000 | 50.0111 | 79.6875 | 100.0000 | 93.7174 |
-| 500 | 25000 | 37.8906 | 62.8906 | 49.9831 | 76.5625 | 100.0000 | 93.7592 |
-| 1000 | 25000 | 36.3281 | 61.3281 | 50.0028 | 76.5625 | 100.0000 | 93.7569 |
-| all | 100000 | 36.3281 | 62.8906 | 49.9945 | 75.0000 | 100.0000 | 93.7489 |
+Kiekvienoje poroje pakeistas vienas ASCII simbolis kitu. Tai gali pakeisti kelis įvesties bitus. Bitams HEX dekoduojamas į baitus, naudojamas XOR ir vienetų skaičiavimas. Bitų skirtumas = skirtingi bitai / 256 × 100; HEX = skirtingos pozicijos / 64 × 100.
 
-**collision-summary.csv**
-
-| length | pairs | total_inputs | unique_inputs | pair_collisions | all_collisions | collision_groups |
-|---|---|---|---|---|---|---|
-| 10 | 100000 | 200000 | 200000 | 0 | 0 | 0 |
-| 100 | 100000 | 200000 | 200000 | 0 | 0 | 0 |
-| 500 | 100000 | 200000 | 200000 | 0 | 0 | 0 |
-| 1000 | 100000 | 200000 | 200000 | 0 | 0 | 0 |
-
-**guessing-summary.csv**
-
-| mode | attempts | elapsed_ms | matches | matching_candidates |
+| Ilgis | v0.1 bitų vid. % | v0.2 bitų vid. % | v0.1 HEX vid. % | v0.2 HEX vid. % |
 |---|---|---|---|---|
-| without_salt | 10000 | 14.420200 | 1 | 2026 |
-| public_salt | 10000 | 11.594200 | 1 | 2026 |
+| 1 | 24.7459 | 49.9812 | 49.6681 | 93.7335 |
+| 2 | 31.2706 | 49.9991 | 61.7119 | 93.7417 |
+| 4 | 40.0421 | 50.0113 | 76.6698 | 93.7472 |
+| 8 | 45.0510 | 50.0037 | 85.3122 | 93.7754 |
+| 10 | 45.9420 | 49.9572 | 86.7964 | 93.7558 |
+| 100 | 49.6243 | 50.0066 | 93.1100 | 93.7616 |
+| 500 | 49.9137 | 50.0449 | 93.6094 | 93.7958 |
+| 1000 | 49.9444 | 49.9564 | 93.6446 | 93.7326 |
+| 10000 | 49.9762 | 49.9960 | 93.7264 | 93.7602 |
+| all | 42.9456 | 49.9952 | 81.5832 | 93.7560 |
 
-## Pateikimo ribos
 
-Šakoje išsaugoti abiejų versijų rezultatai, grafikai ir atkūrimo scenarijus. Vietinis Git žymėjimas pats savaime nepatvirtina GitHub viešumo ar istorinio darbo be DI. Prieš pateikimą patikrink GitHub matomumą ir faktinę v0.1 kūrimo istoriją. Nuotolinis publikavimas šiame etape neatliekamas.
+`all` reiškia visus devynis ilgius, 225 000 porų. **Privalomų keturių ilgių** 100 000 porų bitų vidurkis: v0.1 **48.8561 %**, v0.2 **49.9913 %**. Jų HEX vidurkiai: **91.7901 %** ir **93.7615 %**. Šios reikšmės perskaičiuotos iš pradinių porų duomenų, todėl gali paskutiniu skaitmeniu skirtis nuo suapvalintų ilgių vidurkių vidurkio.
 
-## Šaltiniai
+<!-- Čia įkelti Excel lapo „Lavina“ privalomų 4 ilgių histogramą. -->
+<!-- Papildomai galima įkelti Excel lapo „Palyginimas“ vidurkių pagal ilgį grafiką. -->
 
-- VU 2026 m. užduotis „Sukurk savo maišos generatorių“ ir kontrolinis sąrašas, vartotojo pateikti PDF.
-- Esamas projekto kodas ir kursui naudotas `konstitucija.txt` (failas išsaugotas repozitorijoje; pradinė nuoroda neišlikusi).
-- Vietoje gauti bandymų rezultatai; DI pagalba aprašyta aukščiau.
+Didžiausias pagerėjimas labai trumpoms įvestims: 1 simbolio vidurkis 24,7459 % → 49,9812 %, 2 simbolių 31,2706 % → 49,9991 %. Bendras minimumas 12,1094 % → 35,5469 %. v0.2 pasklidimas šiame rinkinyje nuoseklesnis, tačiau nėra reikalavimo kiekvienai porai pasiekti 50 %. Orientyrai – apie 50 % bitams ir 93,75 % HEX: nepriklausomi bitai sutampa su tikimybe 1/2, HEX pozicija su 1/16.
 
-### Maišymo operacijų šaltinio patikslinimas
+Histograma rodo porų skaičius 5 procentinių punktų intervaluose; privalomi ilgiai atskirti nuo papildomų. Geri vidurkiai neįrodo saugumo ir nepakeičia minimumų ar pasiskirstymo analizės.
 
-32 bitų XOR–poslinkių–daugybos seka su konstantomis 0x85EBCA6B ir 0xC2B2AE35 paimta iš Austin Appleby MurmurHash3 fmix32 galutinio maišymo (public domain): https://github.com/aappleby/smhasher/blob/master/src/MurmurHash3.cpp . Tai žinomas maišymo blokas, jo originalumo nepriskiriu sau. Šiame darbe jis panaudotas savo aštuonių žodžių būsenos papildomame maišyme; visa MurmurHash3 funkcija nekopijuojama ir neiškviečiama.
+### v0.1: visos lavinos rodiklių reikšmės
 
-Vietinė v0.1 žyma sukurta 2026-11-05 prie jau buvusio commit dcc12f2; ji neatkuria ankstesnio pateikimo datos ar darbo be DI įrodymo. v0.2 žyma žymi šį DI pagalba parengtą etapą.
+| Ilgis | Poros | Bitų min. % | Bitų maks. % | Bitų vid. % | HEX min. % | HEX maks. % | HEX vid. % |
+|---|---|---|---|---|---|---|---|
+| 1 | 25000 | 13.6719 | 35.5469 | 24.7459 | 32.8125 | 60.9375 | 49.6681 |
+| 2 | 25000 | 12.1094 | 52.3438 | 31.2706 | 32.8125 | 87.5000 | 61.7119 |
+| 4 | 25000 | 13.2812 | 62.8906 | 40.0421 | 32.8125 | 100.0000 | 76.6698 |
+| 8 | 25000 | 13.6719 | 64.4531 | 45.0510 | 32.8125 | 100.0000 | 85.3122 |
+| 10 | 25000 | 14.0625 | 62.5000 | 45.9420 | 34.3750 | 100.0000 | 86.7964 |
+| 100 | 25000 | 14.8438 | 64.4531 | 49.6243 | 34.3750 | 100.0000 | 93.1100 |
+| 500 | 25000 | 14.8438 | 62.1094 | 49.9137 | 34.3750 | 100.0000 | 93.6094 |
+| 1000 | 25000 | 17.1875 | 63.2812 | 49.9444 | 37.5000 | 100.0000 | 93.6446 |
+| 10000 | 25000 | 28.9062 | 62.8906 | 49.9762 | 54.6875 | 100.0000 | 93.7264 |
+| all | 225000 | 12.1094 | 64.4531 | 42.9456 | 32.8125 | 100.0000 | 81.5832 |
+
+### v0.2: visos lavinos rodiklių reikšmės
+
+| Ilgis | Poros | Bitų min. % | Bitų maks. % | Bitų vid. % | HEX min. % | HEX maks. % | HEX vid. % |
+|---|---|---|---|---|---|---|---|
+| 1 | 25000 | 39.4531 | 60.9375 | 49.9812 | 79.6875 | 100.0000 | 93.7335 |
+| 2 | 25000 | 39.0625 | 62.5000 | 49.9991 | 78.1250 | 100.0000 | 93.7417 |
+| 4 | 25000 | 38.6719 | 61.7188 | 50.0113 | 81.2500 | 100.0000 | 93.7472 |
+| 8 | 25000 | 36.3281 | 61.7188 | 50.0037 | 78.1250 | 100.0000 | 93.7754 |
+| 10 | 25000 | 35.5469 | 62.8906 | 49.9572 | 79.6875 | 100.0000 | 93.7558 |
+| 100 | 25000 | 37.8906 | 63.2812 | 50.0066 | 79.6875 | 100.0000 | 93.7616 |
+| 500 | 25000 | 38.6719 | 62.1094 | 50.0449 | 78.1250 | 100.0000 | 93.7958 |
+| 1000 | 25000 | 37.1094 | 62.8906 | 49.9564 | 79.6875 | 100.0000 | 93.7326 |
+| 10000 | 25000 | 35.5469 | 62.8906 | 49.9960 | 79.6875 | 100.0000 | 93.7602 |
+| all | 225000 | 35.5469 | 63.2812 | 49.9952 | 78.1250 | 100.0000 | 93.7560 |
+
+
+
+## 7. PIN paieška: be druskos ir su vieša druska
+
+Paieška gauna tik tikslinę maišą ir, kai taikoma, druską. Bandomi visi `0000`–`9999`, nestojant ties sutapimu. Abiem versijoms po 10 matuojamų paleidimų, po 10 000 kandidatų kiekviename: iš viso 100 000 / režimą / versiją. 1000 apšilimo kvietimų prieš režimo matavimus neįtraukti.
+
+| Versija | Režimas | Paleidimai | Kandidatai / kartą | Vid. ms | Min. ms | Maks. ms | Rastas PIN |
+|---|---|---|---|---|---|---|---|
+| v0.1 | without_salt | 10 | 10000 | 6.113930 | 4.716100 | 14.815500 | 1234 |
+| v0.1 | public_salt | 10 | 10000 | 8.121480 | 7.989400 | 8.322000 | 1234 |
+| v0.2 | without_salt | 10 | 10000 | 7.375110 | 6.079700 | 15.735700 | 1234 |
+| v0.2 | public_salt | 10 | 10000 | 9.252950 | 9.115000 | 9.494400 | 1234 |
+
+
+<!-- Čia pasirinktinai įkelti Excel lapo „Spejimas“ laikų palyginimo grafiką. -->
+
+Laikai yra visos 10 000 kandidatų paieškos, ne vienos maišos. Matuojamas formatavimas, UTF-8 kodavimas, baitų sujungimas, maiša, palyginimas ir sutapimo registravimas. Į konsolę rašoma po matavimo. Excel suvestinėje vidurkis, min. ir maks. skaičiuojami iš visų atskirų laikų.
+
+Druska yra 16 atsitiktinių baitų, išsaugotų HEX faile; į maišą dedami dekoduoti žali baitai: `H(PIN || salt)`. Ji fiksuota visiems vieno taikinio kandidatams ir abiem versijoms vienoda. Vieša druska nesustabdo mažo kandidatų rinkinio perrinkimo: visur rastas `1234`. Šiame seanse v0.2 paieškos vidurkis didesnis abiem režimais; tai dera su papildomo darbo trumpoms įvestims kaina, bet matavimai turi sklaidą, ypač pirmuose be druskos matavimuose.
+
+Skirtingos druskos neleidžia vienos iš anksto apskaičiuotos lentelės naudoti visiems taikiniams. Šis kelių taikinių efektas paaiškinamas konceptualiai, tiesiogiai nematuojamas. Maišos sutapimas apskritai negarantuoja vienintelės pradinės įvesties.
+
+Slaptam `r` konstrukcijoje `H(input || r)` reikėtų ieškoti ir pranešimo, ir nežinomo `r`. Atskleidus juos galima patikrinti maišą. Tai commitment idėja, bet ne šios konstrukcijos slėpimo ar susiejimo saugumo įrodymas. Didelės `r` erdvės paieška neatlikta. Tai nėra iššifravimas ir nėra proof-of-work: PoW ieškoma sąlygą tenkinančios nonce, o čia konkrečios maišos pirmavaizdžio mažame rinkinyje.
+
+## 8. Galutinės išvados
+
+1. Abi versijos praėjo tas pačias teisingumo ir determinizmo patikras.
+2. v0.2 aiškiai pagerino tirtų trumpų įvesčių lavinos efektą. Bendras 225 000 porų bitų vidurkis 42,9456 % → 49,9952 %.
+3. v0.2 prideda 32 būsenos atnaujinimus ir papildomą sudėtingumą. PIN paieška šiame seanse lėtesnė; didelių įvesčių matavimo pagreitėjimo neinterpretuojame kaip algoritmo garantuoto pagreitėjimo.
+4. Abiem versijoms kolizijų nerasta, todėl atsparumo skirtumas nepatvirtintas. Ypač svarbu: **vienodo ilgio v0.1 kolizija išliktų ir v0.2**, nes v0.2 gauna tą pačią būseną ir ilgį. Galutinis maišymas neatkuria prarastos informacijos.
+5. Mažas PIN rinkinys perrenkamas ir su vieša druska. Geras lavinos efektas neišplečia kandidatų erdvės.
+6. Maišos naudojamos blokams susieti ir Merkle struktūrose. Šiame darbe įgyvendinta funkcija ir jos vertinimas, ne pilna blokų grandinė ir ne saugumo įrodymas.
+
+## Rezultatai ir grafikai
+
+[Excel lentelės ir redaguojami grafikai](Palyginimas-v01-v02.xlsx): bendras palyginimas, teisingumas, sparta, kolizijos, lavina ir PIN paieška. CSV yra pirminiai rezultatai; Excel – šio seanso kopija, automatiškai neperskaitanti naujų CSV. `comparison-final/*/results` išsaugo pradines poras, laiko matavimus, suvestines, histogramas, tą pačią druską ir aplinkos metaduomenis. Generavimo kodas išsaugo seed, abėcėlę ir imtis.
+
+Paveikslų į README neįterpta autoriaus prašymu. Reikalingi spartos grafikas ir bitų skirtumo histograma jau yra Excel; aukščiau pažymėtos vietos jų įkėlimui.
+
+## DI naudojimas, autorystė ir šaltiniai
+
+Pradinė v0.1 realizacija yra autoriaus esamo projekto algoritmas. v0.2 galutinį maišymą, bendrą bandymų vykdymą, README, analizę ir Excel padėjo parengti Codex / GPT-6. Ankstesnių testų rengimui, aiškinimui ir dešimties PIN paleidimų pakeitimui taip pat naudota ChatGPT / Codex pagalba. Viso testavimo kodo nepriskiriame darbui be DI. Faktinė ankstesnio algoritmo kūrimo istorija vertinama pagal tikrus projekto įrašus.
+
+Svarbios užklausos: įvertinti pradinį projektą, paaiškinti bandymus, sukurti atskirą v0.2 šaką, pagerinti lavinos efektą, PIN bandymą kartoti 10 kartų, palyginti abi versijas vienodomis sąlygomis ir pateikti README bei Excel.
+
+Priimta: išsaugoti v0.1, įtraukti ilgį, pridėti keturis galutinio maišymo ciklus, naudoti tą pačią druską, atskirti privalomus ir papildomus ilgius. Nepasirinkta visiškai perrašyti algoritmo, nes mažesnį pakeitimą lengviau izoliuotai palyginti. Atmesti nepagrįsti saugumo ir garantuoto pagreitėjimo teiginiai. Pasiūlymai tikrinti kompiliavimu, teisingumu, CLI ir visais statistiniais eksperimentais.
+
+Šaltiniai: VU 2026 m. užduotis „Sukurk savo maišos generatorių“ ir kontrolinis sąrašas; esamas projekto kodas; šio seanso `comparison-final` rezultatai; aukščiau nurodytas MurmurHash3 maišymo bloko šaltinis. Konstitucijos failas paimtas iš anksčiau projekte išsaugotos kurso kopijos; tiksli pradinė atsisiuntimo nuoroda neišlikusi. Vietinė v0.1 žyma sukurta 2026-11-05 prie jau buvusio commit, ji neatkuria ankstesnės pateikimo datos ar savarankiškumo įrodymo. Viešą GitHub pateikimą ir atnaujintos analizės commit reikia patikrinti atskirai.

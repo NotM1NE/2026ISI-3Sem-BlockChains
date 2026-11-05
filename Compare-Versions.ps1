@@ -9,7 +9,7 @@ if (Test-Path -LiteralPath $taskOutput) { throw 'Rezultatų aplankas jau yra. Nu
 & dotnet build $taskProject -c Release
 if ($LASTEXITCODE -ne 0) { throw 'Nepavyko sukompiliuoti' }
 $taskDll = Join-Path $taskRepo 'Blockchain/bin/Release/net9.0/Blockchain.dll'
-$taskSalt = Join-Path $taskRepo 'comparison/v0.1/results/guessing-salt.hex'
+$taskSalt = Join-Path $taskRepo 'comparison-final/v0.1/results/guessing-salt.hex'
 foreach ($version in @('v0.1','v0.2')) {
     $runPath = Join-Path $taskOutput $version
     New-Item -ItemType Directory -Force -Path "$runPath/test-data", "$runPath/results" | Out-Null
@@ -27,4 +27,4 @@ foreach ($version in @('v0.1','v0.2')) {
     } finally { Pop-Location }
     if ($version -eq 'v0.1') { $taskSalt = Join-Path $runPath 'results/guessing-salt.hex' }
 }
-Write-Output "Rezultatai: $taskOutput. Grafikai: python Generate-Graphs.py `"$taskOutput`""
+Write-Output "Rezultatai: $taskOutput"
