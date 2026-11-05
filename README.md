@@ -106,7 +106,7 @@ Imamos pirmos 1, 2, 4, 8… eilutės bei visas failas, išsaugant eilučių skir
 | 512 | 47946 | 5 | 0.156036 | 0.156149 | 0.156331 |
 | 789 | 76384 | 5 | 0.248870 | 0.249476 | 0.249791 |
 
-
+<img width="1552" height="560" alt="image" src="https://github.com/user-attachments/assets/936e8f3e-c600-4d37-96c7-c62287dfcfe4" />
 
 Didėjant įvesties dydžiui, laikas auga maždaug tiesiškai. Visas failas apskaičiuojamas vidutiniškai per 0,249476 ms, apie 306,18 MB/s. Pirmo dydžio laikas išsiskiria: 71 baitas vidutiniškai truko ilgiau nei 125 baitai. Galimos JIT optimizavimo ir sistemos apkrovos priežastys, tačiau šis bandymas neleidžia tiksliai nustatyti priežasties. Išsaugoti 55 pradiniai matavimai (`performance-raw.csv`).
 
@@ -148,10 +148,9 @@ Kiekvienam iš devynių ilgių atlikta po 25 000 porų, iš viso 225 000. Kopijo
 | 10000 | 25000 | 28.9062 | 62.8906 | 49.9762 | 54.6875 | 100.0000 | 93.7264 |
 | all | 225000 | 12.1094 | 64.4531 | 42.9456 | 32.8125 | 100.0000 | 81.5832 |
 
-
 **Svarbu:** `all` apima visus devynis ilgius. Privalomiems keturiems ilgiams atskirai yra 100 000 porų, jų bendras bitų vidurkis **48.8561 %**, HEX vidurkis **91.7901 %** (perskaičiuota iš pradinių matavimų).
 
-
+<img width="1577" height="566" alt="image" src="https://github.com/user-attachments/assets/3a6d27d0-909b-49e7-8d50-adf5f2d85867" />
 
 Trumpoms įvestims nustatytas silpnas maišymas: vieno simbolio vidurkis 24,7459 %, dviejų – 31,2706 %. 10 simbolių vidurkis 45,9420 %, o ilgoms įvestims artėja prie 50 %. Minimumai rodo, kad geras vidurkis neaprašo visų atvejų. Galima silpnumo priežastis – galutinio maišymo nebuvimas; tai hipotezė, ne atskirai įrodytas priežastinis ryšys.
 
@@ -166,7 +165,7 @@ Bandymo paruošimas pasirenka PIN `1234`, bet paieškos funkcija gauna tik tiksl
 | without_salt | 10 | 10000 | 100000 | 6.736060 | 5.246100 | 15.680200 | 1234 |
 | public_salt | 10 | 10000 | 100000 | 11.718130 | 11.438500 | 12.039900 | 1234 |
 
-
+<img width="1727" height="358" alt="image" src="https://github.com/user-attachments/assets/41f1596d-e295-4d1d-a816-eb1324302d65" />
 
 Vidurkis čia reiškia **vienos visos 10 000 kandidatų paieškos laiką**, ne vienos maišos laiką. Kiekvienas režimas iš viso atliko 100 000 matuojamų bandymų. Laikas apima kandidatų formatavimą, UTF-8 kodavimą, baitų sujungimą, maišą, palyginimą ir sutapimo registravimą. Išvedimas vyksta po laikmačio sustabdymo.
 
